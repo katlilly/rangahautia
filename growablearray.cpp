@@ -16,8 +16,8 @@ void Growablearray::append(int item)
 
 void Growablearray::print()
 {
-  printf("capacity: %d\n", capacity);
-  printf("itemcount: %d\n", itemcount);
+  printf("capacity: %d, ", capacity);
+  printf("itemcount: %d, ", itemcount);
   printf("items: ");
   for (int i = 0; i < itemcount; i++)
     {

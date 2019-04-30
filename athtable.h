@@ -17,9 +17,16 @@ class Htable
   entry *table;
 
  public:
+  virtual void callback(char *key, void *value)
+  {
+    // nothing
+  }
+  
   bool add(char *key, void *value);
   void *find(char *key);
   void print();
+  void write(char *key, void *value);
+  void iterate();
   
   Htable(u_int32_t size)
     {

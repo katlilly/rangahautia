@@ -4,6 +4,9 @@
 #include <stdbool.h>
 #include <cstdint>
 #include "athtable.h"
+#include "growablearray.h"
+
+
 
 bool Htable::add(char *key, void *value)
 {
@@ -29,7 +32,6 @@ bool Htable::add(char *key, void *value)
 	{
 	  index = (index + 1) % table_size;
 	}
-
     } while (inserted == false && index != initial);
 
   return inserted;
@@ -45,21 +47,18 @@ void * Htable::find(char *key)
   initial = index = hash_string(key);
   do
     {
-
       if (table[index].key == NULL)
 	{
 	  return NULL;
 	}
       else if (strcmp(key, table[index].key) == 0)
 	{
-	  void *result = malloc(4);
-	  return result;
+	  return table[index].value;
 	}
       else
 	{
 	  index = (index + 1) % table_size;
 	}
-
 
     } while (index != initial);
 
@@ -68,18 +67,17 @@ void * Htable::find(char *key)
 
  
 
-
 //void iterate_callback(char *key, void *value);
-//void iterate(iterate_callback callback);
+//void iterate(iterate_callback callback)
+
 
 
 u_int32_t Htable::hash_string(char *key)
 {
-  //printf("entered hash string function\n");
   u_int32_t value = 0;
   for (char *ch = key; *ch != '\0'; ch++)
     {
-      value = value * 31 + *ch;
+      value = value * 32 + *ch;
     }
   return value % table_size;
 }
@@ -95,4 +93,24 @@ void Htable::print()
 	  printf("index: %d, key: %s\n", i, table[i].key);
 	}
     }
+}
+
+
+void Htable::iterate()
+{
+  for (int i = 0; i < table_size; i++)
+    {
+      if (table[i].key != NULL)
+ 	{
+	  write(table[i].key, table[i].value);
+ 	}
+    }
+}
+
+
+void Htable::write(char *key, void *value)
+{
+  Growablearray *list = (Growablearray *) value;
+  int length = list->itemcount;
+  printf("key: %s, list length: %d\n", key, length);
 }
