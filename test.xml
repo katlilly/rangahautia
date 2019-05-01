@@ -1,0 +1,38 @@
+<DOC>
+  blah blah bladi
+  blah
+  hello this is some test input
+  <DOCID>
+    wsj-19030-01
+  </DOCID> 
+  some more input rubbish
+  blah
+  something
+  
+</DOC>
+
+<DOC>
+  blah blah bladi
+  blah
+  hello this is some other test input
+  <DOCID>
+    wsj-19030-02
+  </DOCID> 
+  some more input rubbish and different stuff
+  blah
+  something
+</DOC>
+<DOC>
+  SOME UPPER CASE INPUT
+  BLAH BLA
+  blah
+  hello this is some other test input
+  <DOCID>
+    wsj-19030-02
+  </DOCID> 
+  some more input rubbish and different stuff
+  blah
+  something
+  
+
+</DOC>

@@ -1,0 +1,14 @@
+input:
+1
+2
+257
+18321
+
+should produce this output;
+1
+2
+129
+2
+145
+143
+1

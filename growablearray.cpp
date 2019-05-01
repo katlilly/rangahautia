@@ -25,3 +25,13 @@ void Growablearray::print()
     }
   printf("\n");
 }
+
+uint32_t * Growablearray::to_uint32_array()
+{
+  uint32_t *result = new uint32_t [itemcount];
+  for (int i = 0; i < itemcount; i++)
+    {
+      result[i] = items[i];
+    }
+  return result;
+}

@@ -6,6 +6,7 @@
 #include "growablearray.h"
 #include "tokeniser.h"
 #include "athtable.h"
+#include "vbyte_compress.h"
 
 typedef struct {
   int start;
@@ -18,22 +19,22 @@ int main(void)
   /* 
      Read in data to be indexed
    */
-  const char *filename = "../431searchengine/shortwsj.xml";
+  const char *filename = "test.xml";
   FILE *fp = fopen(filename, "r");
   if (!fp)
-    exit(printf("couldn't open file\n"));
+    exit(printf("couldn't open file: \"%s\"\n", filename));
   struct stat st;
   stat(filename, &st);
   char *input = (char *)malloc(st.st_size);
-  fread(input, 1, st.st_size, fp);
+  if (!fread(input, 1, st.st_size, fp))
+    exit(printf("failed to read in file: \"%s\"\n", filename));
 
   
   Growablearray ga;
   Tokeniser_no_whitespace tok;
   Tokeniser::slice token = tok.get_first_token(input, st.st_size);
   Htable ht = Htable(1000000);
-  int docno = 0;
-
+  int docno = 1;
   
   /*
     Build the dictionary
@@ -88,11 +89,11 @@ int main(void)
    */
   //ht.iterate();
   FILE *vocabout = fopen("vocab.txt", "w");
-  FILE *listpointers = fopen("listpointers.bin", "w");
+  FILE *starts = fopen("starts.bin", "w");
+  FILE *lengths = fopen("lengths.bin", "w");
   FILE *postingsout = fopen("postings.bin", "w");
 
   Growablearray *currentlist;
-  
   int offset = 0;
   int length = 0;
   for (int i = 0; i < ht.table_size; i++)
@@ -103,15 +104,22 @@ int main(void)
 	  fputs("\n", vocabout);
 	  
 	  currentlist = (Growablearray *) ht.table[i].value;
+	  uint32_t *clist = currentlist->to_uint32_array();
 	  length = currentlist->itemcount;
-	  for (int j = 0; j < length; j++)
-	    putw(currentlist->items[j], postingsout);
-	  putw(offset, listpointers);
-	  putw(length, listpointers);
+	  //VBcompressor *vbc = new VBcompressor(clist, length);
+	  //vbc->compress_array();
+	  //fwrite(clist, 1, length, postingsout);
+	  fwrite(clist, 4, length, postingsout);
+
+	  //for (int j = 0; j < length; j++)
+	  //putw(clist[j], postingsout);
+	  putw(offset, starts);
+	  putw(length, lengths);
 	  offset += length;
 	}
     }
-  fclose(listpointers);
+  fclose(starts);
+  fclose(lengths);
   fclose(postingsout);
   fclose(vocabout);
   return 0;

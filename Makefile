@@ -1,8 +1,14 @@
 indexer :
-	g++ -O3 -Wall athtable.cpp growablearray.cpp tokeniser.cpp indexer.cpp -o indexer
+	g++ -O3 -Wall vbyte_compress.cpp athtable.cpp growablearray.cpp tokeniser.cpp indexer.cpp -o indexer
 
 clean :
 	rm indexer
 
 debug_indexer :
-	g++ -g athtable.cpp growablearray.cpp tokeniser.cpp indexer.cpp -o debug
+	g++ -g athtable.cpp growablearray.cpp tokeniser.cpp indexer.cpp -o debug_indexer
+
+search :
+	g++ athtable.cpp growablearray.cpp search.cpp -o search
+
+debug_search :
+	g++ -g athtable.cpp growablearray.cpp search.cpp -o debug_search

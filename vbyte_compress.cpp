@@ -49,25 +49,25 @@ void VBcompressor::compress_array()
    18321 should compress to 145, 143, 1
 */
 
-int main(void)
-{
-  int testlength = 4;
-  uint32_t *original = (uint32_t *) malloc(testlength * sizeof(*original));
-  original[0] = 1;
-  original[1] = 2;
-  original[2] = 257;
-  original[3] = 18321;
+// int main(void)
+// {
+//   int testlength = 4;
+//   uint32_t *original = (uint32_t *) malloc(testlength * sizeof(*original));
+//   original[0] = 1;
+//   original[1] = 0;
+//   original[2] = 257;
+//   original[3] = 18321;
 
-  VBcompressor *vbc = new VBcompressor(original, testlength);
-  vbc->compress_array();
+//   VBcompressor *vbc = new VBcompressor(original, testlength);
+//   vbc->compress_array();
   
-  uint8_t *compressed = vbc->output;
-  int compressed_length = vbc->output_length;
-  for (int i = 0; i < vbc->output_length; i++)
-    {
-      printf("%d\n", vbc->output[i]);
-    }
+//   uint8_t *compressed = vbc->output;
+//   int compressed_length = vbc->output_length;
+//   for (int i = 0; i < vbc->output_length; i++)
+//     {
+//       printf("%d\n", vbc->output[i]);
+//     }
   
   
-  return 0;
-}
+//   return 0;
+// }
