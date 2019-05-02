@@ -14,6 +14,24 @@ void Growablearray::append(int item)
 }
 
 
+void Growablearray::append_two(int item1, int item2)
+{
+  if (itemcount == capacity)
+    {
+      capacity *= 2;
+      items = (int *) realloc(items, capacity * sizeof(*items));
+    }
+  items[itemcount++] = item1;
+  
+  if (itemcount == capacity)
+    {
+      capacity *= 2;
+      items = (int *) realloc(items, capacity * sizeof(*items));
+    }
+  items[itemcount++] = item2;
+}
+  
+
 void Growablearray::print()
 {
   printf("capacity: %d, ", capacity);

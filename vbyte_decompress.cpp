@@ -29,30 +29,30 @@ void VBdecompressor::decompress_array()
 }
 
 
-int main(void)
-{
-  int testlength = 4;
-  uint8_t *original = (uint8_t *) malloc(testlength * sizeof(*original));
-  original[0] = 1;
-  original[1] = 2;
-  original[2] = 129;
-  original[3] = 2;
-  original[4] = 145;
-  original[5] = 143;
-  original[6] = 1;
+// int main(void)
+// {
+//   int testlength = 4;
+//   uint8_t *original = (uint8_t *) malloc(testlength * sizeof(*original));
+//   original[0] = 1;
+//   original[1] = 2;
+//   original[2] = 129;
+//   original[3] = 2;
+//   original[4] = 145;
+//   original[5] = 143;
+//   original[6] = 1;
 
-  VBdecompressor *vbdc = new VBdecompressor(original, testlength);
-  vbdc->decompress_array();
+//   VBdecompressor *vbdc = new VBdecompressor(original, testlength);
+//   vbdc->decompress_array();
   
-  uint32_t *compressed = vbdc->output;
-  int decompressed_length = vbdc->output_length;
-  for (int i = 0; i < vbdc->output_length; i++)
-    {
-      printf("%d\n", vbdc->output[i]);
-    }
+//   uint32_t *compressed = vbdc->output;
+//   int decompressed_length = vbdc->output_length;
+//   for (int i = 0; i < vbdc->output_length; i++)
+//     {
+//       printf("%d\n", vbdc->output[i]);
+//     }
   
 
-  return 0;
-}
+//   return 0;
+// }
 
 

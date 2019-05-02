@@ -18,6 +18,7 @@ private:
   bool belongs(char *token, int length);
 
 public:
+  char *slice_to_lowercase_string();
   void print_token(void);
   bool compare(const char *string);
   virtual slice get_first_token(char *start, size_t length);

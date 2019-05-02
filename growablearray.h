@@ -34,8 +34,10 @@ class Growablearray
   
  public:
   void append(int item);
+  void append_two(int item1, int item2);
   void print();
   uint32_t * to_uint32_array();
+  
 
 };
 

@@ -18,12 +18,16 @@ public:
     {
       input = compressed;
       input_length = length;
-      output = (uint32_t *) malloc(length * sizeof(*output));
+      output = new uint32_t [length];
       output_length = 0;
       current_out = 0;
     }
 
-  
+  ~VBdecompressor()
+    {
+      delete [] output;
+    }
+    
  public:
   
   void decompress_array();

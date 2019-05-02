@@ -19,7 +19,7 @@ int main(void)
   /* 
      Read in data to be indexed
    */
-  const char *filename = "test.xml";
+  const char *filename = "../431searchengine/shortwsj.xml";
   FILE *fp = fopen(filename, "r");
   if (!fp)
     exit(printf("couldn't open file: \"%s\"\n", filename));
@@ -43,25 +43,15 @@ int main(void)
     {
       if (!(*token.start == '<'))
 	{
-	  char *word = (char *) malloc(1024);
-	  strncpy(word, token.start, token.length);
-	  
-	  word[token.length] = '\0';
-	  
+	  char *word = tok.slice_to_lowercase_string();
 	  void *found = ht.find(word);
 	  if (found)
 	    {
 	      Growablearray *pl = (Growablearray *) found;
-	      
 	      if (pl->items[(pl->itemcount)-2] == docno)
-		{ 
-		  pl->items[(pl->itemcount)-1]++;
-		}
+		pl->items[(pl->itemcount)-1]++;
 	      else
-		{
-		  pl->append(docno);
-		  pl->append(1);
-		}
+		pl->append_two(docno, 1);
 	    }
 	  else
 	    { 
@@ -70,9 +60,8 @@ int main(void)
 	    }
 	}
       else if (tok.compare("</DOC>"))
-	{
 	  docno++;
-	}
+
       else if (tok.compare("<DOCNO>"))
 	{
 	  ; // std O string stream?
@@ -87,40 +76,46 @@ int main(void)
   /*
     Write index to disk
    */
-  //ht.iterate();
-  FILE *vocabout = fopen("vocab.txt", "w");
-  FILE *starts = fopen("starts.bin", "w");
-  FILE *lengths = fopen("lengths.bin", "w");
   FILE *postingsout = fopen("postings.bin", "w");
-
+  FILE *termsout = fopen("terms.bin", "w");
+  FILE *locationsout = fopen("locations.bin", "w");
+    
   Growablearray *currentlist;
   int offset = 0;
   int length = 0;
+  char end = '\n';
   for (int i = 0; i < ht.table_size; i++)
     {
+      //fwrite(source, size of each element, number of elements, dest)
+
       if (ht.table[i].key != NULL)
 	{
-	  fputs(ht.table[i].key, vocabout);
-	  fputs("\n", vocabout);
-	  
+	  // write string to terms file 
+	  uint16_t string_length = strlen(ht.table[i].key);
+	  fwrite(ht.table[i].key, 1, strlen(ht.table[i].key), termsout);
+	  fwrite(&end, 1, 1, termsout);
+
+	  // write (compressed) postings list to file
 	  currentlist = (Growablearray *) ht.table[i].value;
 	  uint32_t *clist = currentlist->to_uint32_array();
 	  length = currentlist->itemcount;
-	  //VBcompressor *vbc = new VBcompressor(clist, length);
-	  //vbc->compress_array();
-	  //fwrite(clist, 1, length, postingsout);
-	  fwrite(clist, 4, length, postingsout);
+	  VBcompressor *vbc = new VBcompressor(clist, length);
+	  vbc->compress_array();
+	  fwrite(clist, 1, vbc->output_length, postingsout);
+	  
 
-	  //for (int j = 0; j < length; j++)
-	  //putw(clist[j], postingsout);
-	  putw(offset, starts);
-	  putw(length, lengths);
-	  offset += length;
+	  // write locations of postings lists to index
+	  //printf("offset: %d, length: %d\n", offset, vbc->output_length);
+	  fwrite(&offset, 4, 1, locationsout);
+	  fwrite(&vbc->output_length, 4, 1, locationsout);
+	  offset += vbc->output_length;
+	  
 	}
     }
-  fclose(starts);
-  fclose(lengths);
+
   fclose(postingsout);
-  fclose(vocabout);
+  fclose(locationsout);
+  fclose(termsout);
+
   return 0;
 }

@@ -27,14 +27,22 @@ bool Tokeniser::compare(const char *string)
 
 void Tokeniser::print_token(void)
 {
-  int len = current_token.length;
-  //printf("%*.*s\n", len, len, current_token.start);
-  int i;
-  for (i = 0; i < len; i++)
+  for (int i = 0; i < current_token.length; i++)
     {
       printf("%c", tolower(current_token.start[i]));
     }
   printf("\n");
+}
+
+
+char * Tokeniser::slice_to_lowercase_string()
+{
+  char *result = (char *) malloc(current_token.length +1);
+  strncpy(result, current_token.start, current_token.length);
+  result[current_token.length] = '\0';
+  for (int pos = 0; result[pos] != '\0'; pos++)
+    result[pos] = tolower(result[pos]);
+  return result;
 }
 
 
@@ -75,7 +83,6 @@ Tokeniser::slice Tokeniser::get_first_token(char *start, size_t length)
   current = start;
   document = start;
   document_length = length;
-
   return get_next_token();
 }
 
