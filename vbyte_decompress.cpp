@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <cstdint>
+//#include <cstdint>
+#include <stdint.h>
 #include "vbyte_decompress.h"
 
 void VBdecompressor::decompress_array()
@@ -11,6 +12,7 @@ void VBdecompressor::decompress_array()
   int shift = 0;
   uint8_t mask = 127;
   uint8_t continuebit = 128;
+  
   while (compressedindex < input_length)
     {
       uint8_t current = input[compressedindex++];

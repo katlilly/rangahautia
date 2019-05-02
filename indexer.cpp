@@ -101,9 +101,8 @@ int main(void)
 	  length = currentlist->itemcount;
 	  VBcompressor *vbc = new VBcompressor(clist, length);
 	  vbc->compress_array();
-	  fwrite(clist, 1, vbc->output_length, postingsout);
+	  fwrite(vbc->output, 1, vbc->output_length, postingsout);
 	  
-
 	  // write locations of postings lists to index
 	  //printf("offset: %d, length: %d\n", offset, vbc->output_length);
 	  fwrite(&offset, 4, 1, locationsout);

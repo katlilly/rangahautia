@@ -1,6 +1,6 @@
 #ifndef VBYTE_DECOMPRESS_H_
 #define VBYTE_DECOMPRESS_H_
-
+#include <stdint.h>
 
 class VBdecompressor
 {
