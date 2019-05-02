@@ -2,16 +2,16 @@ indexer :
 	g++ -O3 -Wall vbyte_compress.cpp athtable.cpp growablearray.cpp tokeniser.cpp indexer.cpp -o indexer
 
 clean :
-	rm indexer search newsearch
+	rm indexer search
 
 debug_indexer :
 	g++ -g athtable.cpp growablearray.cpp tokeniser.cpp indexer.cpp -o debug_indexer
 
-search :
-	g++ vbyte_decompress.cpp athtable.cpp growablearray.cpp search.cpp -o search
+oldsearch :
+	g++ vbyte_decompress.cpp athtable.cpp growablearray.cpp oldsearch.cpp -o oldsearch
 
-newsearch :
-	g++ vbyte_decompress.cpp athtable.cpp newsearch.cpp -lm -o newsearch
+search :
+	g++ vbyte_decompress.cpp athtable.cpp search.cpp -lm -o search
 
 
 debug_search :

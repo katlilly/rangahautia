@@ -18,7 +18,8 @@ public:
     {
       input = compressed;
       input_length = length;
-      output = new uint32_t [length];
+      int maxsize = (int) 5/4*length;
+      output = new uint32_t [maxsize];
       output_length = 0;
       current_out = 0;
     }

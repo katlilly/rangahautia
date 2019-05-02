@@ -19,7 +19,9 @@ int main(void)
   /* 
      Read in data to be indexed
    */
-  const char *filename = "../431searchengine/shortwsj.xml";
+
+  const char *filename = "../431searchengine/wsj.xml";
+  //const char *filename = "test.xml";
   FILE *fp = fopen(filename, "r");
   if (!fp)
     exit(printf("couldn't open file: \"%s\"\n", filename));
@@ -86,12 +88,10 @@ int main(void)
   char end = '\n';
   for (int i = 0; i < ht.table_size; i++)
     {
-      //fwrite(source, size of each element, number of elements, dest)
-
       if (ht.table[i].key != NULL)
 	{
 	  // write string to terms file 
-	  uint16_t string_length = strlen(ht.table[i].key);
+	  //uint16_t string_length = strlen(ht.table[i].key);
 	  fwrite(ht.table[i].key, 1, strlen(ht.table[i].key), termsout);
 	  fwrite(&end, 1, 1, termsout);
 
