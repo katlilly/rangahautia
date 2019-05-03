@@ -2,8 +2,12 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <string.h>
+#include <string>
 #include <stdint.h>
 #include <math.h>
+#include <iostream>
+#include <vector>
+#include <bits/stdc++.h> 
 //#include <inttypes.h>
 #include "athtable.h"
 #include "vbyte_decompress.h"
@@ -33,9 +37,28 @@ int compare_rsvs(const void *a, const void *b)
   return rsva < rsvb ? 1 : rsva == rsvb ? 0 : -1;
 }
 
+/* 
+   takes a docnum and returns a wsj-number as a string
+ */
+char *get_pkey(int docnum)
+{
+  //int index = docnum - 1;
+  //char *name = (char *) malloc(IDLEN);
+  //int offset = index * (IDLEN-1);
+  //for (int i = 0; i < IDLEN-1; i++) {
+  //name[i] = *(primarykeys + i + offset);
+  //}
+  //name[IDLEN-1] = '\0';
+  return NULL;
+}
+
+
+
 
 int main(void)
 {
+
+
   /*
     Read postings list locations
    */
@@ -50,7 +73,27 @@ int main(void)
   if (!fread(locations, 1, st.st_size, fp))
     exit(printf("failed to read in list locations\n"));
   fclose(fp);
-  
+
+  /* 
+     Read in the document identifiers
+   */
+  fp = fopen("primarykeys.txt", "r");
+  if (!fp)
+    exit(printf("couldn't open file: \"primarykeys.txt\"\n"));
+  stat("primarykeys.txt", &st);
+  char identifier[20];
+  std::vector <std::string> identifiers; 
+
+  while (fgets(identifier, 20, fp) != NULL)
+    {
+      printf("%s", identifier);
+      identifiers.push_back(identifier);
+    }
+  fclose(fp);
+  printf("%d\n", identifiers.size());
+  //std::count << identifiers[2] << std::endl;
+  //printf("%s",identifiers[2]);
+
   
   /*
     Get indexed terms and insert them into hash map with locations as value
@@ -73,7 +116,8 @@ int main(void)
     }
   fclose(fp);
 
-
+ 
+  
   /*
     Read in the postings lists
    */

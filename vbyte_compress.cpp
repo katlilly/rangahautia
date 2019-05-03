@@ -3,6 +3,32 @@
 #include <cstdint>
 #include "vbyte_compress.h"
 
+void VBcompress::unit_test(uint32_t *testdata, int testlength)
+{
+  VBcompress *compressor = new VBcompress();
+  uint8_t *encoded = new uint8_t [5 * testlength];
+  int comp_length = compressor->compress(encoded, testdata, testlength);
+  uint32_t *decompressed = new uint32_t [testlength];
+  int decomp_length = compressor->decompress(decompressed, encoded, comp_length);
+
+  if (decomp_length != testlength)
+    {
+      printf("decompressed length not same as input length\n");
+      return;
+    }
+
+  for (int i = 0; i < testlength; i++)
+    {
+      //printf("%d, %d\n", testdata[i], decompressed[i]);
+      if (testdata[i] != decompressed[i])
+	{
+	  printf("wrong\n");
+	  return;
+	}
+    }
+  printf("\ntest passed\n");
+}
+
 
 int VBcompress::decompress(uint32_t *decompressed, uint8_t *compressed, int compressed_length)
 {
@@ -78,36 +104,35 @@ int VBcompress::compress(uint8_t *compressed, uint32_t *raw, int raw_length)
    18321 should compress to 145, 143, 1
 */
 
-int main(void)
-{
-  int testlength = 4;
-  uint32_t *original = (uint32_t *) malloc(testlength * sizeof(*original));
-  original[0] = 1;
-  original[1] = 2;
-  original[2] = 257;
-  original[3] = 18321;
+// int main(void)
+// {
+//   int testlength = 4;
+//   uint32_t *original = (uint32_t *) malloc(testlength * sizeof(*original));
+//   original[0] = 1;
+//   original[1] = 2;
+//   original[2] = 257;
+//   original[3] = 18321;
   
-  printf("original:     ");
-  for (int i = 0; i < testlength; i++)
-    printf("%d, ", original[i]);
-  printf("\n");
+//   VBcompress *compressor = new VBcompress();
+//   uint8_t *encoded = new uint8_t [5 * testlength];
+//   int comp_len = compressor->compress(encoded, original, testlength);
 
-  VBcompress *compressor = new VBcompress();
-  uint8_t *encoded = new uint8_t [5 * testlength];
-  int comp_len = compressor->compress(encoded, original, testlength);
+//   printf("compressed:   ");
+//   for (int i = 0; i < comp_len; i++)
+//     printf("%d, ", encoded[i]);
+//   printf("\n");
 
-  printf("compressed:   ");
-  for (int i = 0; i < comp_len; i++)
-    printf("%d, ", encoded[i]);
-  printf("\n");
-
-  uint32_t *decoded = new uint32_t [comp_len];
-  int length = compressor->decompress(decoded, encoded, comp_len);
+//   uint32_t *decoded = new uint32_t [comp_len];
+//   int length = compressor->decompress(decoded, encoded, comp_len);
     
-  printf("decompressed: ");
-  for (int i = 0; i < length; i++)
-    printf("%d, ", decoded[i]);
-  printf("\n");
-    
-  return 0;
-}
+//   printf("decompressed: ");
+//   for (int i = 0; i < length; i++)
+//     printf("%d, ", decoded[i]);
+//   printf("\n");
+
+
+//   compressor->unit_test(original, testlength);
+
+  
+//   return 0;
+// }

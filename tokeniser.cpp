@@ -45,6 +45,14 @@ char * Tokeniser::slice_to_lowercase_string()
   return result;
 }
 
+char * Tokeniser::slice_to_string()
+{
+  char *result = (char *) malloc(current_token.length +1);
+  strncpy(result, current_token.start, current_token.length);
+  result[current_token.length] = '\0';
+  return result;
+}
+
 
 bool Tokeniser::belongs(char *token, int length)
 {

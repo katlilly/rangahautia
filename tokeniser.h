@@ -19,6 +19,7 @@ private:
 
 public:
   char *slice_to_lowercase_string();
+  char *slice_to_string();
   void print_token(void);
   bool compare(const char *string);
   virtual slice get_first_token(char *start, size_t length);

@@ -10,7 +10,7 @@ class VBcompress
   int compress(uint8_t *compressed, uint32_t *raw, int rawlength);
   int decompress(uint32_t *decompressed, uint8_t *compressed, int compressedlength);
 
-  void unit_test(void);
+  void unit_test(uint32_t *testdata, int testlength);
 
 };
 
