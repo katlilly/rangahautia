@@ -12,6 +12,8 @@
 #include "athtable.h"
 #include "vbyte_compress.h"
 
+#define NUMDOCS 173253
+
 typedef struct {
   int start;
   int length;
@@ -24,8 +26,8 @@ int main(void)
      Read in data to be indexed
    */
 
-  const char *filename = "../431searchengine/wsj.xml";
-  //const char *filename = "test.xml";
+  //const char *filename = "../431searchengine/wsj.xml";
+  const char *filename = "test.xml";
   FILE *fp = fopen(filename, "r");
   if (!fp)
     exit(printf("couldn't open file: \"%s\"\n", filename));
@@ -35,15 +37,14 @@ int main(void)
   if (!fread(input, 1, st.st_size, fp))
     exit(printf("failed to read in file: \"%s\"\n", filename));
 
-  //FILE *primarykeysout = fopen("primarykeys.txt", "w");
   std::ofstream primarykeys;
   primarykeys.open("primarykeys.txt");
-
   Growablearray ga;
   Tokeniser_no_whitespace tok;
   Tokeniser::slice token = tok.get_first_token(input, st.st_size);
   Htable ht = Htable(1000000);
   int docno = 1;
+  char **identifiers = (char **) malloc(NUMDOCS * sizeof(*identifiers));
   
   /*
     Build the dictionary
@@ -82,9 +83,8 @@ int main(void)
 	      primarykey << temp;
 	      token = tok.get_next_token();
 	    }
-
+	  
 	  primarykeys << primarykey.str() << std::endl;
-
 	}
       
       token = tok.get_next_token();
@@ -111,7 +111,6 @@ int main(void)
       if (ht.table[i].key != NULL)
 	{
 	  // write string to terms file 
-	  //uint16_t string_length = strlen(ht.table[i].key);
 	  fwrite(ht.table[i].key, 1, strlen(ht.table[i].key), termsout);
 	  fwrite(&end, 1, 1, termsout);
 
@@ -123,11 +122,7 @@ int main(void)
 	  uint8_t *encoded = new uint8_t [5 * length];
 	  int compressed_length = compressor->compress(encoded, clist, length);
 	  fwrite(encoded, 1, compressed_length, postingsout);
-
-	  //VBcompressor *vbc = new VBcompressor(clist, length);
-	  //vbc->compress_array();
-	  //fwrite(vbc->output, 1, vbc->output_length, postingsout);
-	  
+ 
 	  // write locations of postings lists to index
 	  fwrite(&offset, 4, 1, locationsout);
 	  fwrite(&compressed_length, 4, 1, locationsout);

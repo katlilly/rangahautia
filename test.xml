@@ -2,9 +2,9 @@
   blah blah bladi
   first first  blah
   hello this is some test input
-  <DOCID>
+  <DOCNO>
     wsj-19030-01
-  </DOCID> 
+  </DOCNO> 
   some more input rubbish
   blah
   something
@@ -15,9 +15,9 @@
   blah blah bladi
   blah second doc
   hello this is some other test input
-  <DOCID>
+  <DOCNO>
     wsj-19030-02
-  </DOCID> 
+  </DOCNO> 
   some more input rubbish and different stuff
   blah this is the second one, not the first
   something
@@ -27,9 +27,9 @@
   BLAH BLA
   blah
   hello this is some other test input
-  <DOCID>
-    wsj-19030-02
-  </DOCID> 
+  <DOCNO>
+    wsj-19030-03
+  </DOCNO> 
   some more input rubbish and different stuff
   blah
   something
