@@ -8,24 +8,16 @@
 #include <iostream>
 #include <vector>
 #include <bits/stdc++.h> 
-//#include <inttypes.h>
 #include "athtable.h"
-#include "vbyte_decompress.h"
+#include "vbyte_compress.h"
+
 
 //#define NUMDOCS 51
 #define NUMDOCS 173253
 
-struct list_location
-{
-  int start;
-  int length;
-};
 
-struct result
-{
-  int docid;
-  double rsv;
-};
+struct list_location { int start; int length; };
+struct result { int docid; double rsv; };
 
 
 int compare_rsvs(const void *a, const void *b)
@@ -37,28 +29,9 @@ int compare_rsvs(const void *a, const void *b)
   return rsva < rsvb ? 1 : rsva == rsvb ? 0 : -1;
 }
 
-/* 
-   takes a docnum and returns a wsj-number as a string
- */
-char *get_pkey(int docnum)
-{
-  //int index = docnum - 1;
-  //char *name = (char *) malloc(IDLEN);
-  //int offset = index * (IDLEN-1);
-  //for (int i = 0; i < IDLEN-1; i++) {
-  //name[i] = *(primarykeys + i + offset);
-  //}
-  //name[IDLEN-1] = '\0';
-  return NULL;
-}
-
-
-
 
 int main(void)
 {
-
-
   /*
     Read postings list locations
    */
@@ -80,23 +53,20 @@ int main(void)
   fp = fopen("primarykeys.txt", "r");
   if (!fp)
     exit(printf("couldn't open file: \"primarykeys.txt\"\n"));
-  stat("primarykeys.txt", &st);
-  char identifier[20];
-  std::vector <std::string> identifiers; 
+  char **primarykeys = (char **) malloc(NUMDOCS * sizeof(*primarykeys));
+  char identifier[1024];
+  int doccount = 1;
 
-  while (fgets(identifier, 20, fp) != NULL)
+  while (fgets(identifier, 1024, fp) != NULL)
     {
-      printf("%s", identifier);
-      identifiers.push_back(identifier);
+      identifier[strlen(identifier)-1] = '\0';
+      primarykeys[doccount] = (char *) malloc(1024);
+      strcpy(primarykeys[doccount++], identifier);
     }
   fclose(fp);
-  printf("%d\n", identifiers.size());
-  //std::count << identifiers[2] << std::endl;
-  //printf("%s",identifiers[2]);
-
   
   /*
-    Get indexed terms and insert them into hash map with locations as value
+    Get the terms in the index and insert them into hash map with list locations as value
   */
   Htable *index = new Htable(1000000);
   filename = "terms.bin";
@@ -115,8 +85,6 @@ int main(void)
       termcount++;
     }
   fclose(fp);
-
- 
   
   /*
     Read in the postings lists
@@ -130,76 +98,57 @@ int main(void)
   if (!fread(postings, 1, st.st_size, fp))
     exit(printf("failed to read in postings lists\n"));
   fclose(fp);
-  
+
 
   /* 
-     some tests
+     Get list of document lengths (zeroth value is number of docs);
    */
-  //index->print();
-  // char *testquery = (char *) "blair";
-  // list_location *found = (list_location *) index->find(testquery);
-  // if (found)
-  //   {
-  //     int length = found->length;
-  //     uint8_t *compressed_list = (uint8_t *) malloc(length);
-  //     for (int i = 0; i < length; i++)
-  // 	compressed_list[i] = postings[found->start + i];
-  //     for (int i = 0; i < length; i++)
-  // 	printf("%d ", compressed_list[i]);
-  //     printf("\n");
 
-  //     VBdecompressor *decompressor = new VBdecompressor(compressed_list, length);
-  //     decompressor->decompress_array();
-  //     uint32_t *thislist = decompressor->output;
-  //     length = decompressor->output_length;
-  //     for (int i = 0; i < length; i++)
-  // 	printf("%d ", thislist[i]);
-  //     printf("\n");
-  //   }
-
-
-  int i;
-  int docid;
+  
+  int i, docid, foundcount;
   char query[1024];
   char **queryterms = (char **) malloc(100 * sizeof(*queryterms));
   char *searchterm;
   result *results = (result *) malloc(NUMDOCS * sizeof(*results));
+  list_location *found;
 
   while (fgets(query, 1024, stdin))
     {
-      
-      for (int i = 0; i < NUMDOCS; i++)
+      for (i = 0; i < NUMDOCS; i++)
 	{
 	  results[i].docid = i;
 	  results[i].rsv = 0;
 	}
       
-      int foundcount = 0;
+      foundcount = 0;
       searchterm = strtok(query, " \n");
 
       while (searchterm)
 	{
-	  list_location *found = (list_location *) index->find(searchterm);
+	  found = (list_location *) index->find(searchterm);
 	  if (found)
 	    {
 	      foundcount++;
 	      int length = found->length;
+	      
 	      uint8_t *compressed_list = (uint8_t *) malloc(length);
 	      for (int i = 0; i < length; i++)
 		compressed_list[i] = postings[found->start + i];
-	      VBdecompressor *decompressor = new VBdecompressor(compressed_list, length);
-	      decompressor->decompress_array();
-	      uint32_t *thislist = decompressor->output;
-	      length = decompressor->output_length;
+	      
+	      uint32_t *thislist = (uint32_t *) malloc(length * sizeof(*thislist));
+	      VBcompress *decompressor = new VBcompress();
+	      length = decompressor->decompress(thislist, compressed_list, length);
+	      
 	      double idf = log((NUMDOCS)/(length/2));
 	      printf("found %s, list length: %d, idf: %.10f\n", searchterm, length, idf);
 	      double epsilon = 1e-5;
-	      for (int i = 0; i < length; i++)
+	      
+	      for (i = 0; i < length; i++)
 		{
-		  if (i%2==0)
+		  if (i % 2 == 0)
 		    docid = thislist[i];
 		  else
-		    results[docid].rsv += ((epsilon +idf) * thislist[i]);
+		    results[docid].rsv += ((epsilon + idf) * thislist[i]);
 		}
 	    }
 	  searchterm = strtok(NULL, " \n");
@@ -212,12 +161,11 @@ int main(void)
       if (foundcount > 0)
 	{
 	  qsort(results, NUMDOCS, sizeof(*results), compare_rsvs);
-	  for (int i = 0; i < NUMDOCS; i++)
+	  for (i = 0; i < NUMDOCS; i++)
 	    {
 	      if (results[i].rsv == 0)
 		break;
-	      printf("%6d %2.4f\n", results[i].docid, results[i].rsv);
-	      //printf("%s %2.2f\n", get_pkey(results[i].docid), results[i].rsv);
+	      printf("%s %2.4f\n", primarykeys[results[i].docid], results[i].rsv);
 	    }
 	  printf("\n");
 	}
