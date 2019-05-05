@@ -153,15 +153,15 @@ int main(void)
 	      for (i = 0; i < length; i++)
 		{
 		  if (i % 2 == 0)
-		    docid = thislist[i];
+		    {
+		      docid = thislist[i];
+		    }
 		  else
 		    {
 		      double tf = (double)thislist[i] / doclengths[docid];
-		      //printf("term count: %d, term frequency: %.6f, length: %d\n", thislist[i], tf, doclengths[docid]);
 		      results[docid].rsv += ((epsilon + idf) * tf);
 		    }
-		    //results[docid].rsv += ((epsilon + idf) * thislist[i]);
-
+		  
 		}
 	    }
 	  searchterm = strtok(NULL, " \n");

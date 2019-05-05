@@ -48,7 +48,8 @@ int main(void)
   int doclength = 0;
   char **identifiers = (char **) malloc(NUMDOCS * sizeof(*identifiers));
   std::vector <int> doclengths;
-  
+
+  bool journal = false;
   /*
     Build the dictionary
    */
@@ -56,8 +57,11 @@ int main(void)
     {
       if (!(*token.start == '<'))
 	{
+	  
 	  doclength++;
 	  char *word = tok.slice_to_lowercase_string();
+	  if (tok.compare("journal") || tok.compare("Journal") || tok.compare("JOURNAL"))
+	    journal = true;
 	  void *found = ht.find(word);
 	  if (found)
 	    {
@@ -75,10 +79,13 @@ int main(void)
 	}
       else if (tok.compare("</DOC>"))
 	{
+	  if (!journal)
+	    printf("didn't find \"journal\" in this document: %d\n", docno);
 	  printf("docno: %d, length: %d\n", docno, doclength);
 	  docno++;
 	  doclengths.push_back(doclength);
-	  doclength = 0; 
+	  doclength = 0;
+	  journal = false;
 	}
       
 
