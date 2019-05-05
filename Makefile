@@ -15,4 +15,4 @@ search :
 
 
 debug_search :
-	g++ -g athtable.cpp growablearray.cpp search.cpp -o debug_search
+	g++ -g vbyte_compress.cpp athtable.cpp search.cpp -lm -o debug_search

@@ -12,6 +12,11 @@ class VBcompress
 
   void unit_test(uint32_t *testdata, int testlength);
 
+  ~VBcompress()
+    {
+      
+    }
+  
 };
 
 #endif

@@ -10,9 +10,7 @@
 #include <bits/stdc++.h> 
 #include "athtable.h"
 #include "vbyte_compress.h"
-
 //#define NUMDOCS 173253
-
 
 struct list_location { int start; int length; };
 struct result { int docid; double rsv; };
@@ -89,7 +87,8 @@ int main(void)
   while (fgets(buffer, 1024, fp) != NULL)
     {
       buffer[strlen(buffer)-1] = '\0';
-      list_location *current = new list_location;
+      //list_location *current = new list_location;
+      list_location *current = (list_location *) malloc(sizeof(*current));
       current->start = locations[termcount].start;
       current->length = locations[termcount].length;
       index->add(buffer, current);
@@ -111,12 +110,12 @@ int main(void)
   fclose(fp);
 
   
-  int i, docid, foundcount;
+  int i, docid;
+  int foundcount = 0;
   char query[1024];
-  char **queryterms = (char **) malloc(100 * sizeof(*queryterms));
-  char *searchterm;
+  char *searchterm = NULL;
   result *results = (result *) malloc(num_docs_in_index * sizeof(*results));
-  list_location *found;
+  list_location *found = NULL;
 
   while (fgets(query, 1024, stdin))
     {
@@ -140,7 +139,7 @@ int main(void)
 	      int length = found->length;
 	      
 	      uint8_t *compressed_list = (uint8_t *) malloc(length);
-	      for (int i = 0; i < length; i++)
+	      for (i = 0; i < length; i++)
 		compressed_list[i] = postings[found->start + i];
 	      
 	      uint32_t *thislist = (uint32_t *) malloc(length * sizeof(*thislist));
@@ -162,6 +161,10 @@ int main(void)
 		      results[docid].rsv += ((epsilon + idf) * tf);
 		    }
 		}
+	      free(thislist);
+	      free(compressed_list);
+	      delete decompressor;
+	      
 	    }
 	  searchterm = strtok(NULL, " \n");
 	  if (searchterm)
@@ -188,8 +191,17 @@ int main(void)
       
     } // end of queries
   
-
-  //free(query);
+  
+  
+  delete index;
+  free(results);
+  free(searchterm);
+  free(postings);
+  for (i = 1; i < num_docs_in_index; i++)
+    free(primarykeys[i]);
+  free(primarykeys);
+  free(doclengths);
   free(locations);
+
   return 0;
 }
