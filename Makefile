@@ -11,7 +11,7 @@ oldsearch :
 	g++ vbyte_decompress.cpp athtable.cpp growablearray.cpp oldsearch.cpp -o oldsearch
 
 search :
-	g++ vbyte_compress.cpp athtable.cpp search.cpp -lm -o search
+	g++ -Wall vbyte_compress.cpp athtable.cpp search.cpp -lm -o search
 
 
 debug_search :

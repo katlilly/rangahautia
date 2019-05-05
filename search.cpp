@@ -11,7 +11,7 @@
 #include "athtable.h"
 #include "vbyte_compress.h"
 
-#define NUMDOCS 173253
+//#define NUMDOCS 173253
 
 
 struct list_location { int start; int length; };
@@ -39,7 +39,7 @@ int main(void)
     exit(printf("couldn't open file: \"%s\"\n", filename));
   struct stat st;
   stat(filename, &st);
-  int num_elements = st.st_size / sizeof(list_location);
+  //int num_elements = st.st_size / sizeof(list_location);
   list_location *locations = (list_location *) malloc(st.st_size);
   if (!fread(locations, 1, st.st_size, fp))
     exit(printf("failed to read in list locations\n"));
@@ -64,7 +64,7 @@ int main(void)
   fp = fopen("primarykeys.txt", "r");
   if (!fp)
     exit(printf("couldn't open file: \"primarykeys.txt\"\n"));
-  char **primarykeys = (char **) malloc(NUMDOCS * sizeof(*primarykeys));
+  char **primarykeys = (char **) malloc(num_docs_in_index * sizeof(*primarykeys));
   char identifier[1024];
   int doccount = 1;
 
@@ -73,7 +73,6 @@ int main(void)
       identifier[strlen(identifier)-1] = '\0';
       primarykeys[doccount] = (char *) malloc(1024);
       strcpy(primarykeys[doccount++], identifier);
-      //printf("%d, %s\n", doccount-1, primarykeys[doccount-1]);
     }
   fclose(fp);
   
@@ -116,12 +115,12 @@ int main(void)
   char query[1024];
   char **queryterms = (char **) malloc(100 * sizeof(*queryterms));
   char *searchterm;
-  result *results = (result *) malloc(NUMDOCS * sizeof(*results));
+  result *results = (result *) malloc(num_docs_in_index * sizeof(*results));
   list_location *found;
 
   while (fgets(query, 1024, stdin))
     {
-      for (i = 0; i < NUMDOCS; i++)
+      for (i = 0; i < num_docs_in_index; i++)
 	{
 	  results[i].docid = i;
 	  results[i].rsv = 0;
@@ -129,7 +128,9 @@ int main(void)
       
       foundcount = 0;
       searchterm = strtok(query, " \n");
-
+      for (uint i = 0; i < strlen(searchterm); i++)
+	searchterm[i] = tolower(searchterm[i]);
+      
       while (searchterm)
 	{
 	  found = (list_location *) index->find(searchterm);
@@ -146,25 +147,27 @@ int main(void)
 	      VBcompress *decompressor = new VBcompress();
 	      length = decompressor->decompress(thislist, compressed_list, length);
 	      
-	      double idf = log((NUMDOCS)/(length/2));
-	      printf("found %s, list length: %d, idf: %.10f\n", searchterm, length, idf);
-	      double epsilon = 1e-3;
+	      double idf = log((num_docs_in_index)/(length/2));
+	      //printf("found %s, list length: %d, idf: %.10f\n", searchterm, length, idf);
+	      double epsilon = 1e-5;
 	      
 	      for (i = 0; i < length; i++)
 		{
 		  if (i % 2 == 0)
-		    {
-		      docid = thislist[i];
-		    }
+		    docid = thislist[i];
+		    
 		  else
 		    {
 		      double tf = (double)thislist[i] / doclengths[docid];
 		      results[docid].rsv += ((epsilon + idf) * tf);
 		    }
-		  
 		}
 	    }
 	  searchterm = strtok(NULL, " \n");
+	  if (searchterm)
+	    for (uint i = 0; i < strlen(searchterm); i++)
+	      searchterm[i] = tolower(searchterm[i]);
+      	  
 	} // end current query
 
       
@@ -173,8 +176,8 @@ int main(void)
       */
       if (foundcount > 0)
 	{
-	  qsort(results, NUMDOCS, sizeof(*results), compare_rsvs);
-	  for (i = 0; i < NUMDOCS; i++)
+	  qsort(results, num_docs_in_index, sizeof(*results), compare_rsvs);
+	  for (i = 0; i < num_docs_in_index; i++)
 	    {
 	      if (results[i].rsv == 0)
 		break;
