@@ -73,7 +73,7 @@ int main(void)
       identifier[strlen(identifier)-1] = '\0';
       primarykeys[doccount] = (char *) malloc(1024);
       strcpy(primarykeys[doccount++], identifier);
-      //printf("%s\n", primarykeys[doccount-1]);
+      //printf("%d, %s\n", doccount-1, primarykeys[doccount-1]);
     }
   fclose(fp);
   
@@ -178,7 +178,7 @@ int main(void)
 	    {
 	      if (results[i].rsv == 0)
 		break;
-	      printf("%s %2.4f\n", primarykeys[results[i].docid], results[i].rsv);
+	      printf("%s %.8f\n", primarykeys[results[i].docid], results[i].rsv);
 	    }
 	  printf("\n");
 	}
