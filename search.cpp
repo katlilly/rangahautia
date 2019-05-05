@@ -11,8 +11,6 @@
 #include "athtable.h"
 #include "vbyte_compress.h"
 
-
-//#define NUMDOCS 51
 #define NUMDOCS 173253
 
 
@@ -48,6 +46,19 @@ int main(void)
   fclose(fp);
 
   /* 
+     Get list of document lengths (zeroth value is number of docs);
+  */
+  fp = fopen("doclengths.bin", "r");
+  if (!fp)
+    exit(printf("couldn't open doc lengths file\n"));
+  stat("doclengths.bin", &st);
+  int *doclengths = (int *) malloc(st.st_size);
+  if (!fread(doclengths, 1, st.st_size, fp))
+    exit(printf("failed to read in documentlengths\n"));
+  fclose(fp);
+  int num_docs_in_index = *doclengths;
+  
+  /* 
      Read in the document identifiers
    */
   fp = fopen("primarykeys.txt", "r");
@@ -62,6 +73,7 @@ int main(void)
       identifier[strlen(identifier)-1] = '\0';
       primarykeys[doccount] = (char *) malloc(1024);
       strcpy(primarykeys[doccount++], identifier);
+      //printf("%s\n", primarykeys[doccount-1]);
     }
   fclose(fp);
   
@@ -98,11 +110,6 @@ int main(void)
   if (!fread(postings, 1, st.st_size, fp))
     exit(printf("failed to read in postings lists\n"));
   fclose(fp);
-
-
-  /* 
-     Get list of document lengths (zeroth value is number of docs);
-   */
 
   
   int i, docid, foundcount;
@@ -141,14 +148,20 @@ int main(void)
 	      
 	      double idf = log((NUMDOCS)/(length/2));
 	      printf("found %s, list length: %d, idf: %.10f\n", searchterm, length, idf);
-	      double epsilon = 1e-5;
+	      double epsilon = 1e-3;
 	      
 	      for (i = 0; i < length; i++)
 		{
 		  if (i % 2 == 0)
 		    docid = thislist[i];
 		  else
-		    results[docid].rsv += ((epsilon + idf) * thislist[i]);
+		    {
+		      double tf = (double)thislist[i] / doclengths[docid];
+		      //printf("term count: %d, term frequency: %.6f, length: %d\n", thislist[i], tf, doclengths[docid]);
+		      results[docid].rsv += ((epsilon + idf) * tf);
+		    }
+		    //results[docid].rsv += ((epsilon + idf) * thislist[i]);
+
 		}
 	    }
 	  searchterm = strtok(NULL, " \n");

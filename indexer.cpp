@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
+#include <vector>
 #include "growablearray.h"
 #include "tokeniser.h"
 #include "athtable.h"
@@ -27,7 +28,7 @@ int main(void)
    */
 
   //const char *filename = "../431searchengine/wsj.xml";
-  const char *filename = "test.xml";
+  const char *filename = "shortwsj.xml";
   FILE *fp = fopen(filename, "r");
   if (!fp)
     exit(printf("couldn't open file: \"%s\"\n", filename));
@@ -44,7 +45,9 @@ int main(void)
   Tokeniser::slice token = tok.get_first_token(input, st.st_size);
   Htable ht = Htable(1000000);
   int docno = 1;
+  int doclength = 0;
   char **identifiers = (char **) malloc(NUMDOCS * sizeof(*identifiers));
+  std::vector <int> doclengths;
   
   /*
     Build the dictionary
@@ -53,6 +56,7 @@ int main(void)
     {
       if (!(*token.start == '<'))
 	{
+	  doclength++;
 	  char *word = tok.slice_to_lowercase_string();
 	  void *found = ht.find(word);
 	  if (found)
@@ -70,7 +74,13 @@ int main(void)
 	    }
 	}
       else if (tok.compare("</DOC>"))
+	{
+	  printf("docno: %d, length: %d\n", docno, doclength);
 	  docno++;
+	  doclengths.push_back(doclength);
+	  doclength = 0; 
+	}
+      
 
       else if (tok.compare("<DOCNO>"))
 	{
@@ -91,9 +101,17 @@ int main(void)
     }
   
   primarykeys.close();
-  printf("doc count: %d\n", docno);
+
+
+  FILE *doclengthsout = fopen("doclengths.bin", "w");
+  fwrite(&docno, sizeof(int), 1, doclengthsout);
+  for (int i = 0; i < docno; i++)
+    fwrite(&doclengths[i], sizeof(int), 1, doclengthsout);
+    
+  fclose(doclengthsout);
   free(input);
   fclose(fp);
+
 
   /*
     Write index to disk
