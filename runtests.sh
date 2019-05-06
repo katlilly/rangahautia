@@ -1,7 +1,13 @@
 #!/bin/sh
 
-rm testoutput.txt
+rm testfiles/testoutput.txt
 
-./search < testinput.txt > testoutput.txt
+./search < testfiles/testinput.txt > testfiles/testoutput.txt
 
-diff correctoutput.txt testoutput.txt
+diff testfiles/correctoutput.txt testoutput.txt
+
+
+valgrind -q ./search < testfiles/testinput.txt > /dev/null
+
+
+

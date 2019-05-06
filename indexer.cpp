@@ -39,7 +39,7 @@ int main(void)
     exit(printf("failed to read in file: \"%s\"\n", filename));
 
   std::ofstream primarykeys;
-  primarykeys.open("primarykeys.txt");
+  primarykeys.open("data/primarykeys.txt");
   Growablearray ga;
   Tokeniser_no_whitespace tok;
   Tokeniser::slice token = tok.get_first_token(input, st.st_size);
@@ -110,7 +110,7 @@ int main(void)
   primarykeys.close();
 
 
-  FILE *doclengthsout = fopen("doclengths.bin", "w");
+  FILE *doclengthsout = fopen("data/doclengths.bin", "w");
   fwrite(&docno, sizeof(int), 1, doclengthsout);
   for (int i = 0; i < docno; i++)
     fwrite(&doclengths[i], sizeof(int), 1, doclengthsout);
@@ -123,9 +123,9 @@ int main(void)
   /*
     Write index to disk
    */
-  FILE *postingsout = fopen("postings.bin", "w");
-  FILE *termsout = fopen("terms.bin", "w");
-  FILE *locationsout = fopen("locations.bin", "w");
+  FILE *postingsout = fopen("data/postings.bin", "w");
+  FILE *termsout = fopen("data/terms.bin", "w");
+  FILE *locationsout = fopen("data/locations.bin", "w");
     
   Growablearray *currentlist;
   int offset = 0;

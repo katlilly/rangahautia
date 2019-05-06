@@ -7,16 +7,18 @@ class Htable
   
   int table_size;
   
-   struct entry {
+  struct entry {
     char *key;
     void *value;
   } ;
 
 
   //private:
+  
   entry *table;
 
  public:
+  
   virtual void callback(char *key, void *value)
   {
     // nothing
@@ -40,7 +42,7 @@ class Htable
 	}
     }
 
-  ~Htable()
+  virtual ~Htable()
     {
       //delete [] table;
       for (int i = 0; i < table_size; i++)
@@ -51,9 +53,9 @@ class Htable
       free(table);
     }
   
-  //u_int32_t hash_string(char *key);
-
+ 
  private:
+
   void iterate_callback(char *key, void *value);
   u_int32_t hash_string(char *key);
   //void iterate(iterate_callback callback);

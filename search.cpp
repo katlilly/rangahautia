@@ -31,7 +31,7 @@ int main(void)
   /*
     Read postings list locations
    */
-  const char *filename = "locations.bin";
+  const char *filename = "data/locations.bin";
   FILE *fp = fopen(filename, "r");
   if (!fp)
     exit(printf("couldn't open file: \"%s\"\n", filename));
@@ -46,7 +46,7 @@ int main(void)
   /* 
      Get list of document lengths (zeroth value is number of docs);
   */
-  fp = fopen("doclengths.bin", "r");
+  fp = fopen("data/doclengths.bin", "r");
   if (!fp)
     exit(printf("couldn't open doc lengths file\n"));
   stat("doclengths.bin", &st);
@@ -59,7 +59,7 @@ int main(void)
   /* 
      Read in the document identifiers
    */
-  fp = fopen("primarykeys.txt", "r");
+  fp = fopen("data/primarykeys.txt", "r");
   if (!fp)
     exit(printf("couldn't open file: \"primarykeys.txt\"\n"));
   char **primarykeys = (char **) malloc(num_docs_in_index * sizeof(*primarykeys));
@@ -78,7 +78,7 @@ int main(void)
     Get the terms in the index and insert them into hash map with list locations as value
   */
   Htable *index = new Htable(1000000);
-  filename = "terms.bin";
+  filename = "data/terms.bin";
   fp = fopen(filename, "r");
   if (!fp)
     exit(printf("couldn't open file: \"%s\"\n", filename));
@@ -99,7 +99,7 @@ int main(void)
   /*
     Read in the postings lists
    */
-  filename = "postings.bin";
+  filename = "data/postings.bin";
   fp = fopen(filename, "r");
   if (!fp)
     exit(printf("couldn't open file: \"%s\"\n", filename));
@@ -109,7 +109,10 @@ int main(void)
     exit(printf("failed to read in postings lists\n"));
   fclose(fp);
 
-  
+
+  /* 
+     Receive queries
+   */
   int i, docid;
   int foundcount = 0;
   char query[1024];
@@ -127,8 +130,9 @@ int main(void)
       
       foundcount = 0;
       searchterm = strtok(query, " \n");
-      for (uint i = 0; i < strlen(searchterm); i++)
-	searchterm[i] = tolower(searchterm[i]);
+      if (searchterm)
+	for (uint i = 0; i < strlen(searchterm); i++)
+	  searchterm[i] = tolower(searchterm[i]);
       
       while (searchterm)
 	{
@@ -191,8 +195,7 @@ int main(void)
       
     } // end of queries
   
-  
-  
+    
   delete index;
   free(results);
   free(searchterm);
