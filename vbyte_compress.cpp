@@ -19,7 +19,6 @@ void VBcompress::unit_test(uint32_t *testdata, int testlength)
 
   for (int i = 0; i < testlength; i++)
     {
-      //printf("%d, %d\n", testdata[i], decompressed[i]);
       if (testdata[i] != decompressed[i])
 	{
 	  printf("wrong\n");

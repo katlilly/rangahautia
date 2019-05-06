@@ -22,13 +22,10 @@ typedef struct {
 
 int main(void)
 {
-
   /* 
      Read in data to be indexed
    */
-
   const char *filename = "../431searchengine/wsj.xml";
-  //const char *filename = "shortwsj.xml";
   FILE *fp = fopen(filename, "r");
   if (!fp)
     exit(printf("couldn't open file: \"%s\"\n", filename));
@@ -49,7 +46,6 @@ int main(void)
   char **identifiers = (char **) malloc(NUMDOCS * sizeof(*identifiers));
   std::vector <int> doclengths;
 
-  //bool journal = false;
   /*
     Build the dictionary
    */
@@ -57,12 +53,10 @@ int main(void)
     {
       if (!(*token.start == '<'))
 	{
-	  
 	  doclength++;
 	  char *word = tok.slice_to_lowercase_string();
-	  //if (tok.compare("journal") || tok.compare("Journal") || tok.compare("JOURNAL"))
-	  //  journal = true;
 	  void *found = ht.find(word);
+
 	  if (found)
 	    {
 	      Growablearray *pl = (Growablearray *) found;
@@ -79,13 +73,9 @@ int main(void)
 	}
       else if (tok.compare("</DOC>"))
 	{
-	  //if (!journal)
-	  //  printf("didn't find \"journal\" in this document: %d\n", docno);
-	  //printf("docno: %d, length: %d\n", docno, doclength);
 	  docno++;
 	  doclengths.push_back(doclength);
 	  doclength = 0;
-	  //journal = false;
 	}
       
 

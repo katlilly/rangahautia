@@ -44,7 +44,7 @@ int main(void)
   fclose(fp);
 
   /* 
-     Get list of document lengths (zeroth value is number of docs);
+     Get list of document lengths (zeroth element is number of docs);
   */
   fp = fopen("data/doclengths.bin", "r");
   if (!fp)
@@ -72,10 +72,13 @@ int main(void)
       primarykeys[doccount] = (char *) malloc(1024);
       strcpy(primarykeys[doccount++], identifier);
     }
-  fclose(fp);
   
+  if (doccount != num_docs_in_index)
+    exit(printf("Expected %d documents, but read in %d identifiers\n", num_docs_in_index-1, doccount-1));
+  fclose(fp);
+
   /*
-    Get the terms in the index and insert them into hash map with list locations as value
+    Get the terms in the index and insert them into hashmap with list locations as value
   */
   Htable *index = new Htable(1000000);
   filename = "data/terms.bin";
@@ -87,12 +90,10 @@ int main(void)
   while (fgets(buffer, 1024, fp) != NULL)
     {
       buffer[strlen(buffer)-1] = '\0';
-      //list_location *current = new list_location;
       list_location *current = (list_location *) malloc(sizeof(*current));
       current->start = locations[termcount].start;
-      current->length = locations[termcount].length;
+      current->length = locations[termcount++].length;
       index->add(buffer, current);
-      termcount++;
     }
   fclose(fp);
   
@@ -140,36 +141,25 @@ int main(void)
 	  if (found)
 	    {
 	      foundcount++;
-	      int length = found->length;
-	      
-	      uint8_t *compressed_list = (uint8_t *) malloc(length);
-	      for (i = 0; i < length; i++)
-		compressed_list[i] = postings[found->start + i];
-	      
-	      uint32_t *thislist = (uint32_t *) malloc(length * sizeof(*thislist));
+	      uint32_t *thislist = (uint32_t *) malloc(found->length * sizeof(*thislist));
 	      VBcompress *decompressor = new VBcompress();
-	      length = decompressor->decompress(thislist, compressed_list, length);
-	      
-	      double idf = log((num_docs_in_index)/(length/2));
-	      //printf("found %s, list length: %d, idf: %.10f\n", searchterm, length, idf);
+	      int length = decompressor->decompress(thislist, postings + found->start, found->length);
+	      double idf = log((num_docs_in_index) / (length/2));
 	      double epsilon = 1e-5;
 	      
 	      for (i = 0; i < length; i++)
 		{
-		  if (i % 2 == 0)
-		    docid = thislist[i];
-		    
+		  if (i % 2 == 0) docid = thislist[i];
 		  else
 		    {
-		      double tf = (double)thislist[i] / doclengths[docid];
+		      double tf = (double) thislist[i] / doclengths[docid];
 		      results[docid].rsv += ((epsilon + idf) * tf);
 		    }
 		}
 	      free(thislist);
-	      free(compressed_list);
 	      delete decompressor;
-	      
 	    }
+
 	  searchterm = strtok(NULL, " \n");
 	  if (searchterm)
 	    for (uint i = 0; i < strlen(searchterm); i++)
@@ -192,10 +182,9 @@ int main(void)
 	    }
 	  printf("\n");
 	}
-      
-    } // end of queries
+     } // end of queries
+
   
-    
   delete index;
   free(results);
   free(searchterm);
