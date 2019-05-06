@@ -1,5 +1,12 @@
 #!/bin/sh
 
+make clean
+
+make indexer
+./indexer
+
+make search
+
 rm testfiles/testoutput.txt
 
 ./search < testfiles/testinput.txt > testfiles/testoutput.txt
