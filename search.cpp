@@ -12,7 +12,19 @@
 #include "vbyte_compress.h"
 //#define NUMDOCS 173253
 
-struct list_location { int start; int length; };
+class list_location
+{
+public:
+  int start;
+  int length;
+  
+public:
+  list_location() : start(0), length(0)
+  {
+    // nothing
+  }
+		   
+};
 struct result { int docid; double rsv; };
 
 
@@ -65,6 +77,8 @@ int main(void)
   char **primarykeys = (char **) malloc(num_docs_in_index * sizeof(*primarykeys));
   char identifier[1024];
   int doccount = 1;
+  
+
 
   while (fgets(identifier, 1024, fp) != NULL)
     {
@@ -72,6 +86,8 @@ int main(void)
       primarykeys[doccount] = (char *) malloc(1024);
       strcpy(primarykeys[doccount++], identifier);
     }
+  printf("%d, %s\n", 1, primarykeys[1]);
+  printf("%d, %s\n", 3379, primarykeys[3379]);
   
   if (doccount != num_docs_in_index)
     exit(printf("Expected %d documents, but read in %d identifiers\n", num_docs_in_index-1, doccount-1));
@@ -80,7 +96,7 @@ int main(void)
   /*
     Get the terms in the index and insert them into hashmap with list locations as value
   */
-  Htable *index = new Htable(1000000);
+  Htable<list_location> index(1000000);
   filename = "data/terms.bin";
   fp = fopen(filename, "r");
   if (!fp)
@@ -89,11 +105,11 @@ int main(void)
   int termcount = 0;
   while (fgets(buffer, 1024, fp) != NULL)
     {
-      buffer[strlen(buffer)-1] = '\0';
-      list_location *current = (list_location *) malloc(sizeof(*current));
-      current->start = locations[termcount].start;
-      current->length = locations[termcount++].length;
-      index->add(buffer, current);
+      buffer[strlen(buffer) - 1] = '\0';
+      list_location  &current = index[buffer];
+      current.start = locations[termcount].start;
+      current.length = locations[termcount].length;
+      termcount++;
     }
   fclose(fp);
   
@@ -119,8 +135,7 @@ int main(void)
   char query[1024];
   char *searchterm = NULL;
   result *results = (result *) malloc(num_docs_in_index * sizeof(*results));
-  list_location *found = NULL;
-
+  
   while (fgets(query, 1024, stdin))
     {
       for (i = 0; i < num_docs_in_index; i++)
@@ -137,27 +152,34 @@ int main(void)
       
       while (searchterm)
 	{
-	  found = (list_location *) index->find(searchterm);
-	  if (found)
+	  list_location &found = index[searchterm];
+	  if (found.length != 0)
 	    {
+	      printf("found %s, %d, %d\n", searchterm, found.start, found.length);
 	      foundcount++;
-	      uint32_t *thislist = (uint32_t *) malloc(found->length * sizeof(*thislist));
-	      VBcompress *decompressor = new VBcompress();
-	      int length = decompressor->decompress(thislist, postings + found->start, found->length);
+	      uint32_t *thislist = (uint32_t *) malloc(found.length * sizeof(*thislist));
+	      VBcompress decompressor;// = new VBcompress();
+	      int length = decompressor.decompress(thislist, postings + found.start, found.length);
 	      double idf = log((num_docs_in_index) / (length/2));
 	      double epsilon = 1e-5;
 	      
 	      for (i = 0; i < length; i++)
 		{
-		  if (i % 2 == 0) docid = thislist[i];
-		  else
-		    {
-		      double tf = (double) thislist[i] / doclengths[docid];
-		      results[docid].rsv += ((epsilon + idf) * tf);
-		    }
+		  printf("%d ", thislist[i]);
+		  //printf("%d ", *(postings + found.start + i));
+		  {
+		    if (i % 2 == 0) docid = thislist[i];
+		    else
+		      {
+			double tf = (double) thislist[i] / doclengths[docid];
+			results[docid].rsv += ((epsilon + idf) * tf);
+		      }
+		  }
+		  
 		}
+	      printf("\n");
 	      free(thislist);
-	      delete decompressor;
+	      //delete decompressor;
 	    }
 
 	  searchterm = strtok(NULL, " \n");
@@ -178,14 +200,14 @@ int main(void)
 	    {
 	      if (results[i].rsv == 0)
 		break;
-	      printf("%s %.8f\n", primarykeys[results[i].docid], results[i].rsv);
+	      //printf("%s %.8f\n", primarykeys[results[i].docid], results[i].rsv);
+	      printf("%8d %.8f\n", results[i].docid, results[i].rsv);
 	    }
 	  printf("\n");
 	}
      } // end of queries
 
   
-  delete index;
   free(results);
   free(searchterm);
   free(postings);

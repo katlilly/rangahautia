@@ -20,6 +20,54 @@ typedef struct {
   int length;
 } listpointer;
 
+
+ struct file_pointers
+  {
+    FILE *postingsout;
+    FILE *termsout;
+    FILE *locationsout;
+  } files;
+
+
+
+void callback(struct file_pointers &files, char *key, Growablearray &data)
+{
+  //int offset = 0;
+  
+
+  // write string to terms file 
+  char end = '\n';
+  fwrite(key, 1, strlen(key), files.termsout);
+  fwrite(&end, 1, 1, files.termsout);
+
+  // write (compressed) postings list to file
+  uint32_t *clist = data.to_uint32_array();
+
+  // if (0 == strcmp(key, "rosenfield") || 0 == strcmp(key, "italy") )
+  //   {
+  //     printf("%s ", key);
+  //     printf(" %d\n", data.itemcount);
+  //     for (int i = 0; i < data.itemcount; i++)
+  // 	printf("%d, ", clist[i]);
+  //     printf("\n");
+  //   }
+  // postings list correct at this point
+
+  
+  int length = data.itemcount;
+  VBcompress compressor;
+  uint8_t *encoded = new uint8_t [5 * length];
+  int compressed_length = compressor.compress(encoded, clist, length);
+  fwrite(encoded, 1, compressed_length, files.postingsout);
+ 
+  // write locations of postings lists to index
+  int offset = ftell(files.locationsout);
+  fwrite(&offset, 4, 1, files.locationsout);
+  fwrite(&compressed_length, 4, 1, files.locationsout);
+  //offset += length;
+ }
+
+
 int main(void)
 {
   /* 
@@ -37,39 +85,30 @@ int main(void)
 
   std::ofstream primarykeys;
   primarykeys.open("data/primarykeys.txt");
-  Growablearray ga;
   Tokeniser_no_whitespace tok;
   Tokeniser::slice token = tok.get_first_token(input, st.st_size);
-  Htable ht = Htable(1000000);
+  Htable<Growablearray> ht = Htable<Growablearray>(1000000);
+  
   int docno = 1;
   int doclength = 0;
   char **identifiers = (char **) malloc(NUMDOCS * sizeof(*identifiers));
-  std::vector <int> doclengths;
+  std::vector<int> doclengths;
 
   /*
     Build the dictionary
-   */
+  */
   while (token.length != 0)
     {
       if (!(*token.start == '<'))
 	{
 	  doclength++;
 	  char *word = tok.slice_to_lowercase_string();
-	  void *found = ht.find(word);
+	  Growablearray &found = ht[word];
 
-	  if (found)
-	    {
-	      Growablearray *pl = (Growablearray *) found;
-	      if (pl->items[(pl->itemcount)-2] == docno)
-		pl->items[(pl->itemcount)-1]++;
-	      else
-		pl->append_two(docno, 1);
-	    }
+	  if (found.itemcount >= 2 && found.items[found.itemcount - 2] == docno)
+	    found.items[found.itemcount - 1]++;
 	  else
-	    { 
-	      Growablearray *newpl = new Growablearray(docno);
-	      ht.add(word, newpl);
-	    }
+	    found.append_two(docno, 1);
 	}
       else if (tok.compare("</DOC>"))
 	{
@@ -110,45 +149,20 @@ int main(void)
   fclose(fp);
 
 
+  struct file_pointers files;
+  
   /*
     Write index to disk
    */
-  FILE *postingsout = fopen("data/postings.bin", "w");
-  FILE *termsout = fopen("data/terms.bin", "w");
-  FILE *locationsout = fopen("data/locations.bin", "w");
-    
-  Growablearray *currentlist;
-  int offset = 0;
-  int length = 0;
-  char end = '\n';
-  for (int i = 0; i < ht.table_size; i++)
-    {
-      if (ht.table[i].key != NULL)
-	{
-	  // write string to terms file 
-	  fwrite(ht.table[i].key, 1, strlen(ht.table[i].key), termsout);
-	  fwrite(&end, 1, 1, termsout);
+  files.postingsout = fopen("data/postings.bin", "w");
+  files.termsout = fopen("data/terms.bin", "w");
+  files.locationsout = fopen("data/locations.bin", "w");
 
-	  // write (compressed) postings list to file
-	  currentlist = (Growablearray *) ht.table[i].value;
-	  uint32_t *clist = currentlist->to_uint32_array();
-	  length = currentlist->itemcount;
-	  VBcompress *compressor = new VBcompress();
-	  uint8_t *encoded = new uint8_t [5 * length];
-	  int compressed_length = compressor->compress(encoded, clist, length);
-	  fwrite(encoded, 1, compressed_length, postingsout);
- 
-	  // write locations of postings lists to index
-	  fwrite(&offset, 4, 1, locationsout);
-	  fwrite(&compressed_length, 4, 1, locationsout);
-	  offset += compressed_length;
-	  
-	}
-    }
-
-  fclose(postingsout);
-  fclose(locationsout);
-  fclose(termsout);
+  ht.iterate(files, callback);
+  
+  fclose(files.postingsout);
+  fclose(files.locationsout);
+  fclose(files.termsout);
 
   return 0;
 }
