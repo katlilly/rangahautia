@@ -12,25 +12,21 @@
 #include "vbyte_compress.h"
 //#define NUMDOCS 173253
 
-// class list_location
-// {
-// public:
-//   int start;
-//   int length;
-  
-// public:
-//   list_location() : start(0), length(0)
-//   {
-//     // nothing
-//   }
-		   
-// };
-
-struct list_location
+class list_location
 {
+public:
   int start;
   int length;
+  
+public:
+  list_location() : start(0), length(0)
+  {
+    // nothing
+  }
+		   
 };
+
+
 
 struct result { int docid; double rsv; };
 
@@ -95,9 +91,7 @@ int main(void)
       primarykeys[doccount] = (char *) malloc(1024);
       strcpy(primarykeys[doccount++], identifier);
     }
-  printf("%d, %s\n", 1, primarykeys[1]);
-  printf("%d, %s\n", 3379, primarykeys[3379]);
-  
+    
   if (doccount != num_docs_in_index)
     exit(printf("Expected %d documents, but read in %d identifiers\n", num_docs_in_index-1, doccount-1));
   fclose(fp);
@@ -162,9 +156,10 @@ int main(void)
       while (searchterm)
 	{
 	  list_location &found = index[searchterm];
+	  //printf("%d %d\n", found.start, found.length);
 	  if (found.length != 0)
 	    {
-	      printf("found %s, %d, %d\n", searchterm, found.start, found.length);
+	      //printf("found %s, %d, %d\n", searchterm, found.start, found.length);
 	      foundcount++;
 	      uint32_t *thislist = (uint32_t *) malloc(found.length * sizeof(*thislist));
 	      VBcompress decompressor;// = new VBcompress();
@@ -174,7 +169,7 @@ int main(void)
 	      
 	      for (i = 0; i < length; i++)
 		{
-		  printf("%d ", thislist[i]);
+		  //printf("%d ", thislist[i]);
 		  //printf("%d ", *(postings + found.start + i));
 		  {
 		    if (i % 2 == 0) docid = thislist[i];
@@ -186,7 +181,7 @@ int main(void)
 		  }
 		  
 		}
-	      printf("\n");
+	      //printf("\n");
 	      free(thislist);
 	      //delete decompressor;
 	    }
@@ -209,8 +204,8 @@ int main(void)
 	    {
 	      if (results[i].rsv == 0)
 		break;
-	      //printf("%s %.8f\n", primarykeys[results[i].docid], results[i].rsv);
-	      printf("%8d %.8f\n", results[i].docid, results[i].rsv);
+	      printf("%s %.8f\n", primarykeys[results[i].docid], results[i].rsv);
+	      //printf("%8d %.8f\n", results[i].docid, results[i].rsv);
 	    }
 	  printf("\n");
 	}
