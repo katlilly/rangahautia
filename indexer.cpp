@@ -21,20 +21,17 @@ typedef struct {
 } listpointer;
 
 
- struct file_pointers
-  {
-    FILE *postingsout;
-    FILE *termsout;
-    FILE *locationsout;
-  } files;
+struct file_pointers
+{
+  FILE *postingsout;
+  FILE *termsout;
+  FILE *locationsout;
+} files;
 
 
 
 void callback(struct file_pointers &files, char *key, Growablearray &data)
 {
-  //int offset = 0;
-  
-
   // write string to terms file 
   char end = '\n';
   fwrite(key, 1, strlen(key), files.termsout);
@@ -42,37 +39,24 @@ void callback(struct file_pointers &files, char *key, Growablearray &data)
 
   // write (compressed) postings list to file
   uint32_t *clist = data.to_uint32_array();
-
-  // if (0 == strcmp(key, "rosenfield") || 0 == strcmp(key, "italy") )
-  //   {
-  //     printf("%s ", key);
-  //     printf(" %d\n", data.itemcount);
-  //     for (int i = 0; i < data.itemcount; i++)
-  // 	printf("%d, ", clist[i]);
-  //     printf("\n");
-  //   }
-  // postings list correct at this point
-
-  
   int length = data.itemcount;
   VBcompress compressor;
   uint8_t *encoded = new uint8_t [5 * length];
   int compressed_length = compressor.compress(encoded, clist, length);
+  int offset = ftell(files.postingsout);
   fwrite(encoded, 1, compressed_length, files.postingsout);
  
   // write locations of postings lists to index
-  int offset = ftell(files.locationsout);
   fwrite(&offset, 4, 1, files.locationsout);
   fwrite(&compressed_length, 4, 1, files.locationsout);
-  //offset += length;
- }
+}
 
 
 int main(void)
 {
   /* 
      Read in data to be indexed
-   */
+  */
   const char *filename = "../431searchengine/wsj.xml";
   FILE *fp = fopen(filename, "r");
   if (!fp)
@@ -105,7 +89,7 @@ int main(void)
 	  char *word = tok.slice_to_lowercase_string();
 	  Growablearray &found = ht[word];
 
-	  if (found.itemcount >= 2 && found.items[found.itemcount - 2] == docno)
+	  if (found.itemcount > 0 && found.items[found.itemcount - 2] == docno)
 	    found.items[found.itemcount - 1]++;
 	  else
 	    found.append_two(docno, 1);

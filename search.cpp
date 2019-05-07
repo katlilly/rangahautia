@@ -12,19 +12,26 @@
 #include "vbyte_compress.h"
 //#define NUMDOCS 173253
 
-class list_location
+// class list_location
+// {
+// public:
+//   int start;
+//   int length;
+  
+// public:
+//   list_location() : start(0), length(0)
+//   {
+//     // nothing
+//   }
+		   
+// };
+
+struct list_location
 {
-public:
   int start;
   int length;
-  
-public:
-  list_location() : start(0), length(0)
-  {
-    // nothing
-  }
-		   
 };
+
 struct result { int docid; double rsv; };
 
 
@@ -51,6 +58,8 @@ int main(void)
   stat(filename, &st);
   //int num_elements = st.st_size / sizeof(list_location);
   list_location *locations = (list_location *) malloc(st.st_size);
+  //list_location *locations = new list_location [num_elements];
+
   if (!fread(locations, 1, st.st_size, fp))
     exit(printf("failed to read in list locations\n"));
   fclose(fp);
@@ -106,7 +115,7 @@ int main(void)
   while (fgets(buffer, 1024, fp) != NULL)
     {
       buffer[strlen(buffer) - 1] = '\0';
-      list_location  &current = index[buffer];
+      list_location &current = index[buffer];
       current.start = locations[termcount].start;
       current.length = locations[termcount].length;
       termcount++;
