@@ -29,7 +29,6 @@ struct file_pointers
 } files;
 
 
-
 void callback(struct file_pointers &files, char *key, Growablearray &data)
 {
   // write string to terms file 
@@ -67,16 +66,14 @@ int main(void)
   if (!fread(input, 1, st.st_size, fp))
     exit(printf("failed to read in file: \"%s\"\n", filename));
 
-  std::ofstream primarykeys;
-  primarykeys.open("data/primarykeys.txt");
+  Htable<Growablearray> ht = Htable<Growablearray>(1000000);
   Tokeniser_no_whitespace tok;
   Tokeniser::slice token = tok.get_first_token(input, st.st_size);
-  Htable<Growablearray> ht = Htable<Growablearray>(1000000);
-  
-  int docno = 1;
-  int doclength = 0;
+  std::ofstream primarykeys;
+  primarykeys.open("data/primarykeys.txt");
   char **identifiers = (char **) malloc(NUMDOCS * sizeof(*identifiers));
   std::vector<int> doclengths;
+  int docno = 1, doclength = 0;
 
   /*
     Build the dictionary
@@ -100,8 +97,6 @@ int main(void)
 	  doclengths.push_back(doclength);
 	  doclength = 0;
 	}
-      
-
       else if (tok.compare("<DOCNO>"))
 	{
 	  std::ostringstream primarykey;
@@ -113,15 +108,11 @@ int main(void)
 	      primarykey << temp;
 	      token = tok.get_next_token();
 	    }
-	  
 	  primarykeys << primarykey.str() << std::endl;
 	}
-      
       token = tok.get_next_token();
     }
-  
   primarykeys.close();
-
 
   FILE *doclengthsout = fopen("data/doclengths.bin", "w");
   fwrite(&docno, sizeof(int), 1, doclengthsout);
@@ -131,13 +122,11 @@ int main(void)
   fclose(doclengthsout);
   free(input);
   fclose(fp);
-
-
-  struct file_pointers files;
   
   /*
     Write index to disk
    */
+  struct file_pointers files;
   files.postingsout = fopen("data/postings.bin", "w");
   files.termsout = fopen("data/terms.bin", "w");
   files.locationsout = fopen("data/locations.bin", "w");

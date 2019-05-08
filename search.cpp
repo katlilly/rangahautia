@@ -10,7 +10,10 @@
 #include <bits/stdc++.h> 
 #include "athtable.h"
 #include "vbyte_compress.h"
-//#define NUMDOCS 173253
+
+
+struct result { int docid; double rsv; };
+
 
 class list_location
 {
@@ -25,10 +28,6 @@ public:
   }
 		   
 };
-
-
-
-struct result { int docid; double rsv; };
 
 
 int compare_rsvs(const void *a, const void *b)
@@ -52,9 +51,8 @@ int main(void)
     exit(printf("couldn't open file: \"%s\"\n", filename));
   struct stat st;
   stat(filename, &st);
-  //int num_elements = st.st_size / sizeof(list_location);
-  list_location *locations = (list_location *) malloc(st.st_size);
-  //list_location *locations = new list_location [num_elements];
+  int num_elements = st.st_size / sizeof(list_location);
+  list_location *locations = new list_location [num_elements];
 
   if (!fread(locations, 1, st.st_size, fp))
     exit(printf("failed to read in list locations\n"));
@@ -83,8 +81,6 @@ int main(void)
   char identifier[1024];
   int doccount = 1;
   
-
-
   while (fgets(identifier, 1024, fp) != NULL)
     {
       identifier[strlen(identifier)-1] = '\0';
@@ -93,11 +89,12 @@ int main(void)
     }
     
   if (doccount != num_docs_in_index)
-    exit(printf("Expected %d documents, but read in %d identifiers\n", num_docs_in_index-1, doccount-1));
+    exit(printf("Expected %d documents, but read in %d identifiers\n",
+		num_docs_in_index-1, doccount-1));
   fclose(fp);
 
   /*
-    Get the terms in the index and insert them into hashmap with list locations as value
+    Get the terms in the index and insert them into a hashmap with list locations as value
   */
   Htable<list_location> index(1000000);
   filename = "data/terms.bin";
@@ -156,34 +153,23 @@ int main(void)
       while (searchterm)
 	{
 	  list_location &found = index[searchterm];
-	  //printf("%d %d\n", found.start, found.length);
 	  if (found.length != 0)
 	    {
-	      //printf("found %s, %d, %d\n", searchterm, found.start, found.length);
 	      foundcount++;
 	      uint32_t *thislist = (uint32_t *) malloc(found.length * sizeof(*thislist));
-	      VBcompress decompressor;// = new VBcompress();
+	      VBcompress decompressor;
 	      int length = decompressor.decompress(thislist, postings + found.start, found.length);
 	      double idf = log((num_docs_in_index) / (length/2));
 	      double epsilon = 1e-5;
 	      
 	      for (i = 0; i < length; i++)
-		{
-		  //printf("%d ", thislist[i]);
-		  //printf("%d ", *(postings + found.start + i));
-		  {
 		    if (i % 2 == 0) docid = thislist[i];
 		    else
 		      {
 			double tf = (double) thislist[i] / doclengths[docid];
 			results[docid].rsv += ((epsilon + idf) * tf);
 		      }
-		  }
-		  
-		}
-	      //printf("\n");
 	      free(thislist);
-	      //delete decompressor;
 	    }
 
 	  searchterm = strtok(NULL, " \n");
@@ -205,7 +191,6 @@ int main(void)
 	      if (results[i].rsv == 0)
 		break;
 	      printf("%s %.8f\n", primarykeys[results[i].docid], results[i].rsv);
-	      //printf("%8d %.8f\n", results[i].docid, results[i].rsv);
 	    }
 	  printf("\n");
 	}
@@ -219,7 +204,7 @@ int main(void)
     free(primarykeys[i]);
   free(primarykeys);
   free(doclengths);
-  free(locations);
-
+  delete [] locations;
+  
   return 0;
 }
