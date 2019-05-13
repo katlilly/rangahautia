@@ -13,8 +13,8 @@ install:
   - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 90
 
 script: 
-  - g++ -O3 -Wall vbyte_compress.cpp growablearray.cpp tokeniser.cpp indexer.cpp -std=c++11 -o indexer
+  - g++ -O3 -std=c++11 vbyte_compress.cpp growablearray.cpp tokeniser.cpp indexer.cpp -o indexer
   - ./indexer testfiles/test.xml
-  - make search
+  - g++ -std=c++11 vbyte_compress.cpp search.cpp -lm -o search
   - ./search < testfiles/testsearch.txt > testfiles/testoutput.txt
   - diff testfiles/correctresult.txt testfiles/testoutput.txt
