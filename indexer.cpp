@@ -51,12 +51,14 @@ void callback(struct file_pointers &files, char *key, Growablearray &data)
 }
 
 
-int main(void)
+int main(int argc, char **argv)
 {
   /* 
      Read in data to be indexed
   */
-  const char *filename = "../431searchengine/wsj.xml";
+  if (argc < 2)
+    exit(printf("provide filename as command line arg\n"));
+  const char *filename = argv[1];
   FILE *fp = fopen(filename, "r");
   if (!fp)
     exit(printf("couldn't open file: \"%s\"\n", filename));
