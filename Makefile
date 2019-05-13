@@ -14,3 +14,4 @@ search :
 
 debug_search :
 	g++ -g -Wall vbyte_compress.cpp athtable.cpp search.cpp -lm -o debug_search
+

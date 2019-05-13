@@ -1,7 +1,6 @@
 #ifndef ATHTABLE_H_
 #define ATHTABLE_H_
 
-
 template <typename DATA>
 class Htable
 {
