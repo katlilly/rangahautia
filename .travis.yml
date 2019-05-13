@@ -2,6 +2,9 @@ language: cpp
 compiler: gcc
 dist: trusty
 
+env:
+  - CODECOV_TOKEN="3aec67ed-b8ba-4418-b5c4-e63b2b86d6b5"
+
 before_install:
   # C++11
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
