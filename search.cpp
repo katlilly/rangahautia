@@ -15,6 +15,7 @@
 struct result { int docid; double rsv; };
 
 
+
 class list_location
 {
 public:
