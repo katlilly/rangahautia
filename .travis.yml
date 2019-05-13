@@ -24,3 +24,5 @@ script:
   - diff testfiles/correctresult.txt testfiles/testoutput.txt
   - ./code_coverage.sh
   
+  after_success:
+  - bash <(curl -s https://codecov.io/bash)
