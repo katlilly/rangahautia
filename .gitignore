@@ -3,3 +3,10 @@
 *.xml
 indexer
 search
+*.gcov
+*.gcda
+*.gcno
+a.out
+*.gch
+debug_search
+debug_indexer

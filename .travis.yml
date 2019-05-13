@@ -18,3 +18,5 @@ script:
   - g++ -std=c++11 vbyte_compress.cpp search.cpp -lm -o search
   - ./search < testfiles/testsearch.txt > testfiles/testoutput.txt
   - diff testfiles/correctresult.txt testfiles/testoutput.txt
+  - ./code_coverage.sh
+  
