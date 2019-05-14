@@ -84,7 +84,7 @@ int main(void)
   
   while (fgets(identifier, 1024, fp) != NULL)
     {
-      identifier[strlen(identifier)-1] = '\0';
+      identifier[strnlen(identifier, 128)-1] = '\0';
       primarykeys[doccount] = (char *) malloc(1024);
       strcpy(primarykeys[doccount++], identifier);
     }
@@ -106,7 +106,7 @@ int main(void)
   int termcount = 0;
   while (fgets(buffer, 1024, fp) != NULL)
     {
-      buffer[strlen(buffer) - 1] = '\0';
+      buffer[strnlen(buffer, 1024) - 1] = '\0';
       list_location &current = index[buffer];
       current.start = locations[termcount].start;
       current.length = locations[termcount].length;
@@ -175,7 +175,7 @@ int main(void)
 
 	  searchterm = strtok(NULL, " \n");
 	  if (searchterm)
-	    for (uint i = 0; i < strlen(searchterm); i++)
+	    for (uint i = 0; i < strnlen(searchterm, 1024); i++)
 	      searchterm[i] = tolower(searchterm[i]);
       	  
 	} // end current query
