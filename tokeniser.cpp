@@ -2,7 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <algorithm>
 #include "tokeniser.h"
+
 
 uint Tokeniser::min(uint a, uint b)
 {
@@ -43,30 +45,25 @@ void Tokeniser::print_token(void)
 
 char * Tokeniser::slice_to_lowercase_string(void)
 {
-  char *result = (char *) malloc(current_token.length + 1);
-  strncpy(result, current_token.start, current_token.length);
-  result[current_token.length] = '\0';
+  int length = current_token.length;
+  char *result = new char[length + 1];
+  std::copy(current_token.start, current_token.start + length, result);
+  result[length] = '\0';
+
   for (int pos = 0; result[pos] != '\0'; pos++)
     result[pos] = tolower(result[pos]);
+
   return result;
 }
 
 
 char * Tokeniser::slice_to_string(void)
 {
-  if (current_token.start)
-    {
-      int length = min(1024, current_token.length);
-      char *result = new char[length + 1];
-      if (result)
-	{
-	  strncpy(result, current_token.start, length);
-	  result[length] = '\0';
-	  return result;
-	}
-    }
-  return NULL;
-
+  int length = current_token.length;
+  char *result = new char[length + 1];
+  std::copy(current_token.start, current_token.start + length, result);
+  result[length] = '\0';
+  return result;
 }
 
 

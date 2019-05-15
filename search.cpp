@@ -15,7 +15,6 @@
 struct result { int docid; double rsv; };
 
 
-
 class list_location
 {
 public:
@@ -27,7 +26,6 @@ public:
   {
     // nothing
   }
-		   
 };
 
 
@@ -209,3 +207,22 @@ int main(void)
   
   return 0;
 }
+
+
+// start = thing.begin()
+//   stop = thing.end()
+//   operator!=()
+//   operator++()
+//   operator*()
+
+
+//   for (const auto &ob : table)
+//     {
+//       whatever(*ob);
+//     }
+  
+//   for (ob = start; ob != stop; ob = thing++)
+//     whatever(*ob);
+
+
+// return std::pair<std:string, DATA>(key, data)
