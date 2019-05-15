@@ -23,6 +23,7 @@ void VBcompress::unit_test(uint32_t *testdata, int testlength)
       if (testdata[i] != decompressed[i])
 	{
 	  printf("wrong\n");
+	  delete compressor;
 	  return;
 	}
     }
@@ -73,6 +74,7 @@ int VBcompress::compress(uint8_t *compressed, uint32_t *raw, int raw_length)
       if (raw[i] < 1)
 	{
 	  printf("don't send numbers less than 1 to this function\n");
+	  delete [] current;
 	  return 0;
 	}
       

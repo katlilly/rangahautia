@@ -132,10 +132,10 @@ int main(void)
      Receive queries
    */
   int i, docid;
-  int foundcount = 0;
+  //int foundcount = 0;
   char query[1024];
   char *searchterm = NULL;
-  result *results = (result *) malloc(num_docs_in_index * sizeof(*results));
+  result *results = new result[num_docs_in_index];
   
   while (fgets(query, 1024, stdin))
     {
@@ -145,7 +145,7 @@ int main(void)
 	  results[i].rsv = 0;
 	}
       
-      foundcount = 0;
+      int foundcount = 0;
       searchterm = strtok(query, " \n");
       if (searchterm)
 	for (uint i = 0; i < strnlen(searchterm, 1024); i++)
@@ -198,7 +198,7 @@ int main(void)
      } // end of queries
 
   
-  free(results);
+  delete [] results;
   free(searchterm);
   free(postings);
   for (i = 1; i < num_docs_in_index; i++)

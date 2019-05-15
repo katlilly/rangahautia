@@ -73,7 +73,6 @@ int main(int argc, char **argv)
   Tokeniser::slice token = tok.get_first_token(input, st.st_size);
   std::ofstream primarykeys;
   primarykeys.open("data/primarykeys.txt");
-  char **identifiers = (char **) malloc(NUMDOCS * sizeof(*identifiers));
   std::vector<int> doclengths;
   int docno = 1, doclength = 0;
 
