@@ -43,7 +43,7 @@ void Tokeniser::print_token(void)
 
 char * Tokeniser::slice_to_lowercase_string(void)
 {
-  char *result = (char *) malloc(current_token.length +1);
+  char *result = (char *) malloc(current_token.length + 1);
   strncpy(result, current_token.start, current_token.length);
   result[current_token.length] = '\0';
   for (int pos = 0; result[pos] != '\0'; pos++)
@@ -57,9 +57,9 @@ char * Tokeniser::slice_to_string(void)
   if (current_token.start)
     {
       size_t length = max(1024, current_token.length);
-      char *result = (char *) malloc(length + 1);
+      char result = new char[length + 1];
       strncpy(result, current_token.start, length);
-      result[current_token.length] = '\0';
+      result[length] = '\0';
       return result;
     }
   return NULL;
