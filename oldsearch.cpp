@@ -117,7 +117,7 @@ int main(void)
   int vcount = 0;
   while (fgets(buffer, TOKLEN, vocab) != NULL)
     {
-      int bufflen = strlen(buffer);
+      int bufflen = strnlen(buffer, MAXTERMLEN);
       buffer[bufflen-1] = '\0';
       //int start = starts[vcount];
       //int length = lengths[vcount];

@@ -48,7 +48,8 @@ char * Tokeniser::slice_to_lowercase_string()
 char * Tokeniser::slice_to_string()
 {
   char *result = (char *) malloc(current_token.length +1);
-  strncpy(result, current_token.start, current_token.length);
+  if (current_token.start && current_token.length != 0)
+    strncpy(result, current_token.start, current_token.length);
   result[current_token.length] = '\0';
   return result;
 }

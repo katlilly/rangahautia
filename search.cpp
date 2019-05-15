@@ -148,7 +148,7 @@ int main(void)
       foundcount = 0;
       searchterm = strtok(query, " \n");
       if (searchterm)
-	for (uint i = 0; i < strlen(searchterm); i++)
+	for (uint i = 0; i < strnlen(searchterm, 1024); i++)
 	  searchterm[i] = tolower(searchterm[i]);
       
       while (searchterm)

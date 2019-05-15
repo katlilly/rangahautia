@@ -33,7 +33,7 @@ void callback(struct file_pointers &files, char *key, Growablearray &data)
 {
   // write string to terms file 
   char end = '\n';
-  fwrite(key, 1, strlen(key), files.termsout);
+  fwrite(key, 1, strnlen(key, 128), files.termsout);
   fwrite(&end, 1, 1, files.termsout);
 
   // write (compressed) postings list to file
