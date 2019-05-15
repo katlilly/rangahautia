@@ -16,7 +16,7 @@ public:
 
 private:
   bool belongs(char *token, int length);
-  uint max(uint a, uint b);
+  uint min(uint a, uint b);
 
 public:
   char *slice_to_lowercase_string();

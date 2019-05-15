@@ -4,9 +4,9 @@
 #include <sys/stat.h>
 #include "tokeniser.h"
 
-uint Tokeniser::max(uint a, uint b)
+uint Tokeniser::min(uint a, uint b)
 {
-  return a > b ? a : b;
+  return a > b ? b : a;
 }
 
 
@@ -54,10 +54,15 @@ char * Tokeniser::slice_to_lowercase_string(void)
 
 char * Tokeniser::slice_to_string(void)
 {
-  char *result = new char[current_token.length + 1];
-  strncpy(result, current_token.start, current_token.length);
-  result[current_token.length] = '\0';
-  return result;
+  if (current_token.start)
+    {
+      int length = min(1024, current_token.length);
+      char *result = new char[length + 1];
+      strncpy(result, current_token.start, length);
+      result[length] = '\0';
+      return result;
+    }
+  return NULL;
 
 }
 
