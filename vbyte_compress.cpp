@@ -28,6 +28,7 @@ void VBcompress::unit_test(uint32_t *testdata, int testlength)
 	}
     }
   printf("\ntest passed\n");
+  delete compressor;
 }
 
 
@@ -39,12 +40,12 @@ int VBcompress::decompress(uint32_t *decompressed, uint8_t *compressed, int comp
   int decompressed_index = 0;
   int shift = 0;
   uint32_t result = 0;
-  uint8_t current, bits;
+  uint8_t current;
 
     while (compressed_index < compressed_length)
     {
       current = compressed[compressed_index++];
-      bits = current & mask;
+      uint8_t bits = current & mask;
       result = result | (bits << (7*shift++));
 
       if ((continuebit & current) == 0)
@@ -65,11 +66,11 @@ int VBcompress::compress(uint8_t *compressed, uint32_t *raw, int raw_length)
   uint8_t mask = 127;
   uint8_t continuebit = 128;
   uint8_t result = 0;
-  uint32_t num_to_compress;
+  //uint32_t num_to_compress;
   
   for (int i = 0; i < raw_length; i++)
     {
-      num_to_compress = raw[i];
+      uint32_t num_to_compress = raw[i];
      
       if (raw[i] < 1)
 	{
