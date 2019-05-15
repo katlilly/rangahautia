@@ -58,9 +58,12 @@ char * Tokeniser::slice_to_string(void)
     {
       int length = min(1024, current_token.length);
       char *result = new char[length + 1];
-      strncpy(result, current_token.start, length);
-      result[length] = '\0';
-      return result;
+      if (result)
+	{
+	  strncpy(result, current_token.start, length);
+	  result[length] = '\0';
+	  return result;
+	}
     }
   return NULL;
 
