@@ -14,6 +14,7 @@ void VBcompress::unit_test(uint32_t *testdata, int testlength)
   if (decomp_length != testlength)
     {
       printf("decompressed length not same as input length\n");
+      delete compressor;
       return;
     }
 
@@ -94,7 +95,7 @@ int VBcompress::compress(uint8_t *compressed, uint32_t *raw, int raw_length)
       compressed_length += index;
       
     }
-  
+  delete [] current;
   return compressed_length;
 }
 

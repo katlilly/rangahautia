@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/stat.h>
 #include "tokeniser.h"
 
@@ -7,6 +8,7 @@ uint Tokeniser::max(uint a, uint b)
 {
   return a > b ? a : b;
 }
+
 
 Tokeniser::slice Tokeniser_no_whitespace::get_next_token()
 {
