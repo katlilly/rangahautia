@@ -10,3 +10,4 @@ a.out
 *.gch
 debug_search
 debug_indexer
+data/primarykeys.txt

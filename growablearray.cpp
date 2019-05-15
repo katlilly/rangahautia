@@ -8,7 +8,14 @@ void Growablearray::append(int item)
   if (itemcount == capacity)
     {
       capacity *= 2;
-      items = (int *) realloc(items, capacity * sizeof(*items));
+      int *temp = (int *) realloc(items, capacity * sizeof(*items));
+      if (temp)
+	items = temp;
+      else
+	{
+	  free(items);
+	  exit(printf("realloc failed while appending to postings list\n"));
+	}
     }
   items[itemcount++] = item;
 }
@@ -19,7 +26,14 @@ void Growablearray::append_two(int item1, int item2)
   if (itemcount == capacity)
     {
       capacity *= 2;
-      items = (int *) realloc(items, capacity * sizeof(*items));
+      int *temp = (int *) realloc(items, capacity * sizeof(*items));
+      if (temp)
+	items = temp;
+      else
+	{
+	  free(items);
+	  exit(printf("realloc failed while appending to postings list\n"));
+	}
     }
   items[itemcount++] = item1;
   
@@ -32,7 +46,7 @@ void Growablearray::append_two(int item1, int item2)
       else
 	{
 	  free(items);
-	  exit(printf("realloc failed\n"));
+	  exit(printf("realloc failed while appending to postings list\n"));
 	}
     }
   items[itemcount++] = item2;
