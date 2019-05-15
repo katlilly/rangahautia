@@ -3,6 +3,10 @@
 #include <sys/stat.h>
 #include "tokeniser.h"
 
+uint Tokeniser::max(uint a, uint b)
+{
+  return a > b ? a : b;
+}
 
 Tokeniser::slice Tokeniser_no_whitespace::get_next_token()
 {
@@ -35,7 +39,7 @@ void Tokeniser::print_token(void)
 }
 
 
-char * Tokeniser::slice_to_lowercase_string()
+char * Tokeniser::slice_to_lowercase_string(void)
 {
   char *result = (char *) malloc(current_token.length +1);
   strncpy(result, current_token.start, current_token.length);
@@ -45,13 +49,18 @@ char * Tokeniser::slice_to_lowercase_string()
   return result;
 }
 
-char * Tokeniser::slice_to_string()
+
+char * Tokeniser::slice_to_string(void)
 {
-  char *result = (char *) malloc(current_token.length +1);
-  if (current_token.start && current_token.length != 0)
-    strncpy(result, current_token.start, current_token.length);
-  result[current_token.length] = '\0';
-  return result;
+  if (current_token.start)
+    {
+      size_t length = max(1024, current_token.length);
+      char *result = (char *) malloc(length + 1);
+      strncpy(result, current_token.start, length);
+      result[current_token.length] = '\0';
+      return result;
+    }
+  return NULL;
 }
 
 
