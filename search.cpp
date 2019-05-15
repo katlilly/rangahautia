@@ -7,6 +7,7 @@
 #include <math.h>
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include <bits/stdc++.h> 
 #include "athtable.h"
 #include "vbyte_compress.h"
@@ -29,13 +30,10 @@ public:
 };
 
 
-int compare_rsvs(const void *a, const void *b)
+
+bool compare_rsvs(const result &a, const result &b)
 {
-  result *ra = (result *) a;
-  result *rb = (result *) b;
-  double rsva = ra->rsv;
-  double rsvb = rb->rsv;
-  return rsva < rsvb ? 1 : rsva == rsvb ? 0 : -1;
+  return (a.rsv > b.rsv);
 }
 
 
@@ -184,7 +182,9 @@ int main(void)
       */
       if (foundcount > 0)
 	{
-	  qsort(results, num_docs_in_index, sizeof(*results), compare_rsvs);
+	  //qsort(results, num_docs_in_index, sizeof(*results), compare_rsvs);
+	  std::sort(results, results + num_docs_in_index, compare_rsvs);
+	  
 	  for (i = 0; i < num_docs_in_index; i++)
 	    {
 	      if (results[i].rsv == 0)
