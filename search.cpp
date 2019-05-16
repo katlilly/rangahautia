@@ -182,7 +182,6 @@ int main(void)
       */
       if (foundcount > 0)
 	{
-	  //qsort(results, num_docs_in_index, sizeof(*results), compare_rsvs);
 	  std::sort(results, results + num_docs_in_index, compare_rsvs);
 	  
 	  for (i = 0; i < num_docs_in_index; i++)
