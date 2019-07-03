@@ -10,6 +10,7 @@ int main(void)
   test.print();
   uint32_t *array = test.to_uint32_array();
   test.print();
+  printf("%u\n", *array);
 
   return 0;
 }
