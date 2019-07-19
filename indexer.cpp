@@ -12,6 +12,7 @@
 #include "tokeniser.h"
 #include "athtable.h"
 #include "vbyte_compress.h"
+#include "simple10avx.h"
 
 #define NUMDOCS 173253
 
@@ -20,34 +21,12 @@ typedef struct {
   int length;
 } listpointer;
 
-
-struct file_pointers
+/*
+  Return largest value of two integers
+*/
+int max(int a, int b)
 {
-  FILE *postingsout;
-  FILE *termsout;
-  FILE *locationsout;
-} files;
-
-
-void callback(struct file_pointers &files, char *key, Growablearray &data)
-{
-  // write string to terms file 
-  char end = '\n';
-  fwrite(key, 1, strnlen(key, 128), files.termsout);
-  fwrite(&end, 1, 1, files.termsout);
-
-  // write (compressed) postings list to file
-  uint32_t *clist = data.to_uint32_array();
-  int length = data.itemcount;
-  VBcompress compressor;
-  uint8_t *encoded = new uint8_t [5 * length];
-  int compressed_length = compressor.compress(encoded, clist, length);
-  int offset = ftell(files.postingsout);
-  fwrite(encoded, 1, compressed_length, files.postingsout);
- 
-  // write locations of postings lists to index
-  fwrite(&offset, 4, 1, files.locationsout);
-  fwrite(&compressed_length, 4, 1, files.locationsout);
+  return a > b ? a : b;
 }
 
 
@@ -127,16 +106,47 @@ int main(int argc, char **argv)
   /*
     Write index to disk
    */
-  struct file_pointers files;
-  files.postingsout = fopen("data/postings.bin", "w");
-  files.termsout = fopen("data/terms.bin", "w");
-  files.locationsout = fopen("data/locations.bin", "w");
+  FILE *postingsout = fopen("data/postings.bin", "w");
+  FILE *termsout = fopen("data/terms.bin", "w");
+  FILE *locationsout = fopen("data/locations.bin", "w");
 
-  ht.iterate(files, callback);
-  
-  fclose(files.postingsout);
-  fclose(files.locationsout);
-  fclose(files.termsout);
+  for (const auto &term : ht)
+    {
+      char *key = term.first;
+      Growablearray &data = term.second;
+      
+      // write string to terms file 
+      char end = '\n';
+      fwrite(key, 1, strnlen(key, 128), termsout);
+      fwrite(&end, 1, 1, termsout);
+
+      // write (compressed) postings list to file
+      uint32_t *clist = data.to_uint32_array();
+      int length = data.itemcount;
+      //VBcompress compressor;
+      //uint8_t *encoded = new uint8_t [5 * length];
+      //int compressed_length = compressor.compress(encoded, clist, length);
+      //int offset = ftell(postingsout);
+      //fwrite(encoded, 1, compressed_length, postingsout);
+      
+      Simple10avx *compressor = new Simple10avx();
+      uint32_t *encoded = new uint32_t[max(16, length)];
+      uint8_t *selectors = new uint8_t[length];
+      uint32_t num_dgaps_compressed;
+      num_dgaps_compressed = compressor->encode(encoded, clist, clist+length, selectors);
+      int compressed_length = compressor->num_compressed_512bit_words;
+      int offset = ftell(postingsout);
+      fwrite(selectors, 1, compressed_length, postingsout);
+      fwrite(encoded, 64, compressed_length, postingsout);
+ 
+      // write locations of postings lists to index
+      fwrite(&offset, 4, 1, locationsout);
+      fwrite(&compressed_length, 4, 1, locationsout);
+    }
+ 
+  fclose(postingsout);
+  fclose(locationsout);
+  fclose(termsout);
 
   return 0;
 }
