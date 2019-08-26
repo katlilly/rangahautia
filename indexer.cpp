@@ -21,6 +21,37 @@ typedef struct {
   int length;
 } listpointer;
 
+
+struct file_pointers
+{
+  FILE *postingsout;
+  FILE *termsout;
+  FILE *locationsout;
+} files;
+
+void callback(struct file_pointers &files, char *key, Growablearray &data)
+{
+  // write string to terms file 
+  char end = '\n';
+  fwrite(key, 1, strnlen(key, 128), files.termsout);
+  fwrite(&end, 1, 1, files.termsout);
+
+  // write (compressed) postings list to file
+  uint32_t *clist = data.to_uint32_array();
+  int length = data.itemcount;
+  VBcompress compressor;
+  uint8_t *encoded = new uint8_t [5 * length];
+  int compressed_length = compressor.compress(encoded, clist, length);
+  int offset = ftell(files.postingsout);
+  fwrite(encoded, 1, compressed_length, files.postingsout);
+
+  // write locations of postings lists to index
+  fwrite(&offset, 4, 1, files.locationsout);
+  fwrite(&compressed_length, 4, 1, files.locationsout);
+}
+
+
+
 /*
   Return largest value of two integers
 */
