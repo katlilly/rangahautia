@@ -13,13 +13,13 @@ before_install:
 
 install: 
   # C++11
-  - sudo apt-get install -qq g++-5
-  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 90
+  - sudo apt-get install -qq g++-9
+  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 90
 
 script: 
-  - g++ -O3 -std=c++11 vbyte_compress.cpp growablearray.cpp tokeniser.cpp indexer.cpp -o indexer
+  - g++ -O3 -std=c++14 vbyte_compress.cpp growablearray.cpp tokeniser.cpp indexer.cpp -o indexer
   - ./indexer testfiles/test.xml
-  - g++ -std=c++11 vbyte_compress.cpp search.cpp -lm -o search
+  - g++ -std=c++14 vbyte_compress.cpp search.cpp -lm -o search
   - ./search < testfiles/testsearch.txt > testfiles/testoutput.txt
   - diff testfiles/correctresult.txt testfiles/testoutput.txt
   - ./code_coverage.sh
