@@ -11,3 +11,4 @@ a.out
 debug_search
 debug_indexer
 data/primarykeys.txt
+testfiles/*output.txt

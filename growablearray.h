@@ -13,7 +13,7 @@ class Growablearray
     {
       capacity = 2;
       itemcount = 0;
-      items = (int *) malloc(sizeof(int) * 2);
+      items = new int [2];
       items[0] = 0;
       items[1] = 0;
     }
@@ -22,7 +22,7 @@ class Growablearray
     {
       capacity = 2;
       itemcount = 2;
-      items = (int *) malloc(sizeof(int) * 2); 
+      items = new int [2];
       items[0] = docno;
       items[1] = 1;
     }
